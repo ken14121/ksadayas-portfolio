@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node work/verify-static-assets.cjs)",
+      "Bash(echo \"EXIT: $?\")",
+      "PowerShell(node \"C:\\\\Users\\\\kenda\\\\Documents\\\\Codex\\\\profile-desktop-site\\\\work\\\\verify-static-assets.cjs\"; \"EXIT: $LASTEXITCODE\")"
+    ]
+  }
+}

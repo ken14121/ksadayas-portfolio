@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="貞保健太郎のポートフォリオ。昔のデスクトップ画面を歩き回るように読める自己紹介サイトで、書道、42 Tokyo、AI学習、Web制作についてまとめています。" />
+    <meta name="theme-color" content="#2b1018" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="貞保健太郎｜About This Website" />
+    <meta property="og:description" content="書道、42 Tokyo、AI学習、Web制作をデスクトップ風にまとめた貞保健太郎の自己紹介・ポートフォリオサイトです。" />
+    <meta property="og:image" content="./assets/waterfront-wallpaper.jpg" />
+    <meta property="og:image:alt" content="デスクトップ風ポートフォリオの背景" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="貞保健太郎｜About This Website" />
+    <meta name="twitter:description" content="書道、42 Tokyo、AI学習、Web制作をデスクトップ風にまとめた自己紹介・ポートフォリオサイトです。" />
+    <title>貞保健太郎｜About This Website（デスクトップ風ポートフォリオ）</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="site-shell" aria-label="personal desktop website">
+      <section class="login-screen" data-login>
+        <div class="login-card">
+          <p class="login-kicker">welcome to my desktop</p>
+          <h1>来てくれてありがとう！</h1>
+          <div class="mascot" aria-hidden="true">
+            <span class="mascot-ear left"></span>
+            <span class="mascot-ear right"></span>
+            <span class="mascot-face">
+              <span class="eye left"></span>
+              <span class="eye right"></span>
+              <span class="mouth"></span>
+            </span>
+          </div>
+          <div class="login-actions">
+            <button class="enter-button" type="button" data-enter>入室</button>
+            <button class="leave-button" type="button" data-leave>退室</button>
+          </div>
+          <p class="leave-message" data-leave-message>入室してくれますよね？</p>
+        </div>
+      </section>
+
+      <section class="desktop is-hidden" data-desktop>
+        <div class="wallpaper-tint"></div>
+
+        <nav class="desktop-icons" aria-label="desktop shortcuts">
+          <button class="desktop-icon" data-window="about">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/about-pen.png" alt="" /></span>
+            <span>About<br />This Website</span>
+          </button>
+          <button class="desktop-icon" data-window="profile">
+            <span class="icon-glyph profile">ID</span>
+            <span>プロフィール</span>
+          </button>
+          <button class="desktop-icon" data-window="gakuchika">
+            <span class="icon-glyph icon-asset icon-card"><img src="./assets/icons/gakuchika.png" alt="" /></span>
+            <span>学生時代<br />力を入れたこと</span>
+          </button>
+          <button class="desktop-icon" data-window="calligraphy">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/folder.png" alt="" /></span>
+            <span>書道<br />フォルダ</span>
+          </button>
+          <button class="desktop-icon" data-window="tokyo42">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/tokyo42.png" alt="" /></span>
+            <span>42 Tokyo</span>
+          </button>
+          <button class="desktop-icon" data-window="work">
+            <span class="icon-glyph icon-asset icon-card"><img src="./assets/icons/work-history.png" alt="" /></span>
+            <span>職歴</span>
+          </button>
+          <button class="desktop-icon" data-window="ai">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/laptop.png" alt="" /></span>
+            <span>学校<br />AI学習</span>
+          </button>
+          <button class="desktop-icon" data-window="browser">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/internet-explorer.png" alt="" /></span>
+            <span>Internet<br />Explorer</span>
+          </button>
+          <button class="desktop-icon" data-window="license">
+            <span class="icon-glyph icon-asset icon-card"><img src="./assets/icons/license.png" alt="" /></span>
+            <span>免許<br />資格</span>
+          </button>
+          <button class="desktop-icon" data-window="terminal">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/terminal.png" alt="" /></span>
+            <span>コマンド<br />プロンプト</span>
+          </button>
+          <button class="desktop-icon" data-window="music">
+            <span class="icon-glyph music">♪</span>
+            <span>音楽</span>
+          </button>
+          <button class="desktop-icon" data-window="hobby">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/hobby-instagram.png" alt="" /></span>
+            <span>趣味<br />写真</span>
+          </button>
+          <button class="desktop-icon" data-window="memo">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/memo.png" alt="" /></span>
+            <span>メモ帳</span>
+          </button>
+          <button class="desktop-icon" data-window="mail">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/mail.png" alt="" /></span>
+            <span>メール</span>
+          </button>
+          <button class="desktop-icon" data-window="trash">
+            <span class="icon-glyph icon-asset"><img src="./assets/icons/trash.png" alt="" /></span>
+            <span>ごみ箱</span>
+          </button>
+        </nav>
+
+        <nav class="desktop-icons desktop-icons-right" aria-label="contact shortcuts">
+          <button class="desktop-icon" data-window="contact">
+            <span class="icon-glyph icon-asset icon-card"><img src="./assets/icons/contact-box.svg" alt="" /></span>
+            <span>連絡箱</span>
+          </button>
+          <button class="desktop-icon" data-window="board">
+            <span class="icon-glyph icon-asset icon-card"><img src="./assets/icons/board.svg" alt="" /></span>
+            <span>掲示板</span>
+          </button>
+        </nav>
+
+        <article class="window" data-panel="about" style="--x: 43vw; --y: 12vh">
+          <header class="window-titlebar">
+            <span>About This Website</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>About This Website</h2>
+            <p>このサイトは、デスクトップ画面を探して回るように読める貞保健太郎の自己紹介ページです。</p>
+            <p>アイコンを開くと、42 Tokyo、大学でのAI学習、書道、制作や興味のあることを小さなウィンドウで見られます。</p>
+            <p>良かったら、コマンドプロンプトで謎解きに挑戦しませんか？まずは <strong>ls</strong> と入力すると、少しだけ別の入口が見えてきます。</p>
+            <p>中身はポートフォリオとして読めるように整理しています。</p>
+          </div>
+        </article>
+
+        <article class="window" data-panel="profile" style="--x: 37vw; --y: 18vh">
+          <header class="window-titlebar">
+            <span>プロフィール</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>自己紹介</h2>
+            <p class="profile-name">貞保健太郎です！</p>
+            <p class="profile-meta">東京国際工科専門職大学3年（2024/04/01~）<br />42 Tokyo（2025/10/15~）</p>
+            <p>プログラミングを軸に、情報工学、AI、Web制作、そして書道を学んでいます。</p>
+            <p>コードをただ動かすだけではなく、見た目の美しさ、使いやすさ、伝わりやすさまで丁寧に作ることを大切にしています。</p>
+            <ul class="plain-list">
+              <li>得意分野: C言語 / Python / データ解析（ビッグデータも可） / AI・機械学習 / Web制作</li>
+              <li>好きな作業: 要件整理 / 細部の調整 / プログラミング / 関数名の考案</li>
+              <li>特技: 集中 / 継続 / 全体のバランス調整</li>
+              <li>趣味: 旅行 / 写真撮影 / 都道府県巡り / 御朱印集め / Esports / コミケ</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="window wide-window" data-panel="calligraphy" style="--x: 29vw; --y: 16vh">
+          <header class="window-titlebar">
+            <span>書道フォルダ</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>書道師範免許</h2>
+            <p>9歳から書道を始め、10年以上の研鑽を積んできました。高校生の時に中等科師範免許を取得し、現在も定期的に稽古を続けています。（中学生までであれば教室を開いてお金をいただいて教えられます。）</p>
+            <p>書道で培った集中力、美意識、そして一筆一筆に込める丁寧さは、ウェブ制作やコーディング、要件定義にも活かされています。</p>
+            <p>細部へのこだわりと全体のバランス感覚は、書道から学んだものです。</p>
+            <div class="calligraphy-gallery" aria-label="書道作品ギャラリー">
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-01.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-01.jpg" alt="硬筆の書道作品 1" loading="lazy" />
+                <span>硬筆 01</span>
+              </a>
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-02.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-02.jpg" alt="硬筆の書道作品 2" loading="lazy" />
+                <span>硬筆 02</span>
+              </a>
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-03.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-03.jpg" alt="硬筆の書道作品 3" loading="lazy" />
+                <span>硬筆 03</span>
+              </a>
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-04.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-04.jpg" alt="硬筆の書道作品 4" loading="lazy" />
+                <span>硬筆 04</span>
+              </a>
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-05.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-05.jpg" alt="毛筆の書道作品 1" loading="lazy" />
+                <span>毛筆 01</span>
+              </a>
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-06.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-06.jpg" alt="毛筆の書道作品 2" loading="lazy" />
+                <span>毛筆 02</span>
+              </a>
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-07.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-07.jpg" alt="毛筆の書道作品 3" loading="lazy" />
+                <span>毛筆 03</span>
+              </a>
+              <a class="calligraphy-photo" href="./assets/calligraphy/calligraphy-08.jpg" target="_blank" rel="noopener">
+                <img src="./assets/calligraphy/calligraphy-08.jpg" alt="毛筆の書道作品 4" loading="lazy" />
+                <span>毛筆 04</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <article class="window code-window vscode-window" data-panel="tokyo42" style="--x: 24vw; --y: 10vh">
+          <header class="window-titlebar">
+            <span>42 Tokyo - Code Workspace</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="vscode-layout">
+            <aside class="vscode-sidebar" aria-label="42 Tokyo files">
+              <strong>EXPLORER</strong>
+              <span>assets / 42tokyo</span>
+              <button class="code-file-button is-active" type="button" data-code-all>42 Tokyo 全体</button>
+              <div class="code-file-list" data-code-file-list></div>
+            </aside>
+            <section class="vscode-editor">
+              <div class="vscode-tabs" aria-label="open files">
+                <span data-code-title>42 Tokyo 全体</span>
+                <a class="external-link code-open-link" href="./assets/42tokyo/README.md" target="_blank" rel="noopener" data-code-open>別タブで開く</a>
+                <a class="external-link github-link" href="https://github.com/ken14121" target="_blank" rel="noopener noreferrer">GitHub profile</a>
+              </div>
+              <div class="code-stack single-code-view">
+                <section class="code-card">
+                  <h3>42 Tokyo / code preview</h3>
+                  <p>`assets/42tokyo/` に置いたコードを、このビューで読み込んで表示しています。今は ft_printf と push_swap のファイルをまとめて見られます。</p>
+                  <pre><code data-code-viewer>読み込み中...</code></pre>
+                </section>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="window wide-window school-window" data-panel="ai" style="--x: 45vw; --y: 18vh">
+          <header class="window-titlebar">
+            <span>学校・AI学習</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>情報工学・データ解析の学習</h2>
+            <p>大学では情報工学を専攻し、AIと機械学習に加えて、Pythonを使ったデータ解析も学んでいます。</p>
+            <p><a href="https://github.com/ken14121/-_loadto-" target="_blank" rel="noopener noreferrer">ken14121/-_loadto-</a> では、Google Colabを想定したデータサイエンス学習をまとめています。</p>
+            <p>DataFrameの作成や loc / iloc による抽出、ベクトル演算、散布図での相関確認、np.polyfitによる単回帰、scikit-learnのLinearRegressionを使った重回帰まで、段階的に手を動かしながら理解しています。</p>
+            <div class="skill-tags">
+              <span>Python</span>
+              <span>pandas</span>
+              <span>NumPy</span>
+              <span>matplotlib</span>
+              <span>scikit-learn</span>
+              <span>データ解析</span>
+              <span>AI学習</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="window wide-window" data-panel="gakuchika" style="--x: 30vw; --y: 12vh">
+          <header class="window-titlebar">
+            <span>学生時代力を入れたこと</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>学生時代力を入れたこと</h2>
+            <a class="document-link" href="./assets/documents/jellyfishteam_3Dbiz_submit.pptx" download>
+              <strong>jellyfishteam_3Dbiz_submit.pptx</strong>
+              <span>PowerPointを開く / ダウンロード</span>
+            </a>
+            <p>学内インターンにて、8か月間7名の多角的なメンバーと裸眼3Dディスプレイ向けの「クラゲ」映像制作に挑み、組織の進捗管理に最も注力しました。</p>
+            <p>「映像作品の制作」という課題に対し、疲弊する現代人のための「癒やしの3D立体視映像」という明確なゴールを設定。使用ソフトを巡る議論もありましたが、全員で協力してプロダクトを完遂するという実習の目的を重視し、全員が使いやすいものを選択しました。</p>
+            <p>当初、専門コースや時間割の違いによる多忙さから情報共有が滞り、作業割り振りが難航する課題に直面しました。そこで私は、週報での進捗確認の徹底を試みました。</p>
+            <p>まず、投稿への心理的ハードルを下げるため、自らが毎日欠かさず画像付きで進捗を投稿する手本となりました。さらに、反応の薄いメンバーには個別に「進捗はどうか」「困っていることはないか」と声をかけて対話を促し、チーム全体の当事者意識を維持しました。</p>
+            <p>この結果、後半の連携は劇的に改善し、各自のモデリングやアニメーションを融合した成果物を期限内に完遂できました。最終的には、映画『アバター』等の著名な有識者である泉邦昭氏から「今まで見た学生プロジェクトの中で一番素晴らしかった」との講評をいただくに至りました。</p>
+            <p>この経験から、周囲の背景を尊重し、仕組みやアイデアで課題を解決する重要性を学びました。</p>
+          </div>
+        </article>
+
+        <article class="window wide-window career-window" data-panel="work" style="--x: 27vw; --y: 13vh">
+          <header class="window-titlebar">
+            <span>職歴</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>職歴</h2>
+            <p>アルバイト・起業・長期インターンシップ経歴</p>
+            <section class="history-entry">
+              <h3>1. 株式会社ビッグ・エー</h3>
+              <p><strong>就業時期/期間:</strong> 2024年6月 〜 2025年10月（1年4ヶ月）</p>
+              <p><strong>業務内容:</strong> レジ打ち、商品の品出し、在庫管理、ピークタイムの混雑緩和に向けたオペレーション改善、業務効率化</p>
+              <p><strong>形態:</strong> アルバイト</p>
+            </section>
+            <section class="history-entry">
+              <h3>2. 3Dbiz研究会</h3>
+              <p><strong>就業時期/期間:</strong> 2025年4月 〜 2025年11月（8ヶ月）</p>
+              <p><strong>業務内容:</strong> Blenderを用いた3Dモデリング、質感設定、ライティング、変形技術の基礎を習得。裸眼立体視ディスプレイ（Looking Glass）向けの「癒しのクラゲ」プロジェクトでは、クラゲの視覚誘導効果や1/fゆらぎ特性を調査し、シェイプキーやボーンを用いたアニメーション制作、背景アセット実装、Slackでの日次進捗報告、週報作成、発表資料制作を担当しました。</p>
+              <p><strong>相互サポート:</strong> 異コースのメンバー間でBlender等の3Dツールを教え合い、アイスブレイクやマンツーマンのサポートも行いました。</p>
+              <p><strong>形態:</strong> 長期インターンシップ</p>
+            </section>
+            <section class="history-entry">
+              <h3>3. アリストス株式会社</h3>
+              <p><strong>就業時期/期間:</strong> 2026年1月 〜 2026年2月（1ヶ月）</p>
+              <p><strong>業務内容:</strong> SNS戦略コンサルタント業務として、競合5社の調査やSNS活用状況の分析を行い、求職者への効果的なアピールポイントや中期SNS戦略を構築しました。東京リネンサプライ様に向けた10個の具体的施策案、生成AI実態調査レポート、AI入門ガイドの制作にも取り組みました。</p>
+              <p><strong>学び:</strong> ビジネスマナー、正確な情報発信、情報セキュリティ、リスク管理を実践しました。</p>
+              <p><strong>形態:</strong> 長期インターンシップ</p>
+            </section>
+            <section class="history-entry">
+              <h3>4. 株式会社サイプレス（銀座総菜店）</h3>
+              <p><strong>就業時期/期間:</strong> 2026年3月 〜 現在</p>
+              <p><strong>業務内容:</strong> 焼き鳥調理、接客販売、レジ業務。衛生基準を遵守した円滑な店舗運営への貢献。</p>
+              <p><strong>形態:</strong> アルバイト</p>
+            </section>
+          </div>
+        </article>
+
+        <article class="window" data-panel="license" style="--x: 49vw; --y: 20vh">
+          <header class="window-titlebar">
+            <span>免許・資格</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>免許・資格</h2>
+            <ul class="license-list">
+              <li><time>2022年7月</time><span>日本習字中等科師範免許（毛筆）取得</span></li>
+              <li><time>2023年1月</time><span>日本習字中等科師範免許（硬筆）取得</span></li>
+              <li><time>2025年7月</time><span>普通自動車第一種運転免許 取得</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="window" data-panel="browser" style="--x: 40vw; --y: 26vh">
+          <header class="window-titlebar">
+            <span>Internet Explorer</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body browser-body">
+            <div class="address-bar">https://github.com/ken14121</div>
+            <p>GitHubや制作物へのリンクを置くためのブラウザ風ウィンドウです。</p>
+            <p><a href="https://github.com/ken14121" target="_blank" rel="noopener noreferrer">GitHub profile を開く</a></p>
+          </div>
+        </article>
+
+        <article class="window terminal-window" data-panel="terminal" style="--x: 39vw; --y: 38vh">
+          <header class="window-titlebar">
+            <span>コマンド プロンプト</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="terminal-console" data-terminal-log aria-live="polite">
+            <p>C:\PROFILE&gt; boot puzzle.exe</p>
+            <p>小さな謎解きモードです。まずは ls と入力してください。</p>
+          </div>
+          <form class="terminal-input-row" data-terminal-form>
+            <label for="terminal-input">C:\PROFILE&gt;</label>
+            <input id="terminal-input" class="terminal-input" data-terminal-input autocomplete="off" spellcheck="false" />
+          </form>
+        </article>
+
+        <article class="window" data-panel="music" style="--x: 33vw; --y: 44vh">
+          <header class="window-titlebar">
+            <span>音楽</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>Music Player</h2>
+            <div class="local-player">
+              <button class="bgm-toggle" type="button" data-bgm-toggle aria-pressed="false">再生</button>
+              <div>
+                <strong>Classic BGM</strong>
+                <p>ローカルでも鳴る、クラシック風の短いBGMです。</p>
+              </div>
+            </div>
+            <a class="external-link music-link" href="https://www.youtube.com/watch?v=XSs2cR2Tvuk" target="_blank" rel="noopener">YouTubeで元の曲を開く</a>
+            <p class="note">YouTube埋め込みは環境によって153エラーになるため、サイト内では軽いBGMを再生する形にしています。</p>
+          </div>
+        </article>
+
+        <article class="window wide-window hobby-window" data-panel="hobby" style="--x: 32vw; --y: 12vh">
+          <header class="window-titlebar">
+            <span>趣味フォルダ</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body hobby-body">
+            <h2>趣味・写真</h2>
+            <p>旅行、都道府県巡り、御朱印集め、Esports観戦、コミケなど、好きなものを写真でまとめたフォルダです。</p>
+            <div class="hobby-gallery" data-hobby-gallery aria-label="趣味の写真ギャラリー"></div>
+          </div>
+        </article>
+
+        <article class="window" data-panel="memo" style="--x: 50vw; --y: 17vh">
+          <header class="window-titlebar">
+            <span>メモ帳</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <textarea class="memo-pad" spellcheck="false">制作メモ
+
+・assets/ai や assets/42tokyo にファイルを入れる
+・index.html 側にリンクやボタンを追加すると表示できる
+・コードビューに反映したい場合は、script.js の codeFiles 配列にファイルを追加する
+・GitHubリンクは https://github.com/ken14121 に設定済み</textarea>
+        </article>
+
+        <article class="window mail-window" data-panel="mail" style="--x: 35vw; --y: 17vh">
+          <header class="window-titlebar">
+            <span>メール</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="mail-app">
+            <aside class="mail-list" aria-label="受信箱">
+              <p>受信箱</p>
+              <button class="mail-item is-active" type="button" data-mail-message="welcome">
+                <strong>訪問ありがとうございます</strong>
+                <span>profile-desktop@site.local</span>
+              </button>
+              <button class="mail-item" type="button" data-mail-message="clear" data-mail-clear hidden>
+                <strong>謎解きクリアおめでとう</strong>
+                <span>command-prompt@site.local</span>
+              </button>
+            </aside>
+            <section class="mail-reading-pane" aria-live="polite">
+              <p class="mail-from" data-mail-from>profile-desktop@site.local</p>
+              <h2 data-mail-subject>訪問ありがとうございます</h2>
+              <div data-mail-body>
+                <p>このサイトに来てくれてありがとうございます。</p>
+                <p>アイコンを開いて、42 Tokyo、AI学習、書道、趣味、コマンドプロンプトの小さな謎解きを見ていってください。</p>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="window" data-panel="trash" style="--x: 41vw; --y: 34vh">
+          <header class="window-titlebar">
+            <span>ごみ箱</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body trash-empty" aria-label="ごみ箱は空です"></div>
+        </article>
+
+        <article class="window wide-window riddle-window" data-panel="riddle-hub" style="--x: 35vw; --y: 13vh">
+          <header class="window-titlebar">
+            <span>playriddle.exe</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body riddle-body">
+            <h2>Riddle Launcher</h2>
+            <p>今からあなたにはこのウェブサイトに隠された謎を解いてもらいます。</p>
+            <p>5つのゲームのうち4つを解けば、答えのキーワードが出ます。</p>
+            <div class="riddle-letter-board" data-riddle-letter-board>
+              <span data-riddle-letter="stopgame">?</span>
+              <span data-riddle-letter="breakoutclone">?</span>
+              <span data-riddle-letter="numbergame">?</span>
+              <span data-riddle-letter="quizgame">?</span>
+            </div>
+            <div class="riddle-game-grid">
+              <button class="riddle-game-icon" type="button" data-window="game-stop" data-riddle-game="stopgame">
+                <span class="riddle-glyph stopwatch-glyph"></span>
+                <strong>game1</strong>
+                <small>stopgame</small>
+              </button>
+              <button class="riddle-game-icon" type="button" data-window="game-breakout" data-riddle-game="breakoutclone">
+                <span class="riddle-glyph breakout-glyph"></span>
+                <strong>game2</strong>
+                <small>breakoutclone</small>
+              </button>
+              <button class="riddle-game-icon" type="button" data-window="game-number" data-riddle-game="numbergame">
+                <span class="riddle-glyph number-glyph">1-10</span>
+                <strong>game3</strong>
+                <small>数あてゲーム</small>
+              </button>
+              <button class="riddle-game-icon" type="button" data-window="game-quiz" data-riddle-game="quizgame">
+                <span class="riddle-glyph quiz-glyph">Q</span>
+                <strong>game4</strong>
+                <small>クイズゲーム</small>
+              </button>
+              <button class="riddle-game-icon unsolved-icon" type="button" data-window="game-unsolved">
+                <span class="riddle-glyph unsolved-glyph">?</span>
+                <strong>game5</strong>
+                <small>素数パズル</small>
+              </button>
+            </div>
+            <p class="riddle-hint" data-riddle-hint>4つのゲームをクリアすると、隠しキーワードが1文字ずつ出ます。</p>
+          </div>
+        </article>
+
+        <article class="window riddle-window mini-game-window" data-panel="game-stop" style="--x: 28vw; --y: 16vh">
+          <header class="window-titlebar">
+            <span>game1: stopgame</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body mini-game-body">
+            <h2>stopgame</h2>
+            <p>10秒ぴったりで止めるゲームです。9.1秒から10.1秒まではクリアです。</p>
+            <p class="key-hint">ボタンのほか、Space / Enter でも start・stop できます。</p>
+            <div class="stopwatch-display" data-stop-time>0.00</div>
+            <div class="mini-game-actions">
+              <button type="button" data-stop-start>start</button>
+              <button type="button" data-stop-stop disabled>stop</button>
+            </div>
+            <p class="mini-game-message" data-stop-message>start を押してタイマーを開始してください。</p>
+            <button class="secondary-game-button" type="button" data-window="riddle-hub">← ハブに戻る</button>
+          </div>
+        </article>
+
+        <article class="window wide-window riddle-window mini-game-window" data-panel="game-breakout" style="--x: 30vw; --y: 12vh">
+          <header class="window-titlebar">
+            <span>game2: breakoutclone</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body mini-game-body">
+            <h2>breakoutclone</h2>
+            <p>3行5列のブロック崩しです。すべてのブロックを壊すとクリアです。</p>
+            <p class="key-hint">マウス / タッチ、または ← → キーでパドルを動かせます。Space / Enter で開始。</p>
+            <canvas class="breakout-canvas" width="420" height="260" data-breakout-canvas></canvas>
+            <div class="mini-game-actions">
+              <button type="button" data-breakout-start>start</button>
+            </div>
+            <p class="mini-game-message" data-breakout-message>start を押して開始してください。</p>
+            <button class="secondary-game-button" type="button" data-window="riddle-hub">← ハブに戻る</button>
+          </div>
+        </article>
+
+        <article class="window riddle-window mini-game-window" data-panel="game-number" style="--x: 43vw; --y: 19vh">
+          <header class="window-titlebar">
+            <span>game3: 数あてゲーム</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body mini-game-body">
+            <h2>数あてゲーム</h2>
+            <p>1から10までの数字をランダムに当ててください。</p>
+            <p class="key-hint">入力欄で Enter を押しても回答できます。</p>
+            <div class="number-game-row">
+              <input type="number" min="1" max="10" data-number-input aria-label="1から10までの数字" />
+              <button type="button" data-number-submit>answer</button>
+            </div>
+            <button class="secondary-game-button" type="button" data-number-reset>new number</button>
+            <p class="mini-game-message" data-number-message>数字を入力して answer を押してください。</p>
+            <button class="secondary-game-button" type="button" data-window="riddle-hub">← ハブに戻る</button>
+          </div>
+        </article>
+
+        <article class="window wide-window riddle-window mini-game-window" data-panel="game-quiz" style="--x: 31vw; --y: 18vh">
+          <header class="window-titlebar">
+            <span>game4: クイズゲーム</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body mini-game-body">
+            <h2>クイズゲーム</h2>
+            <p>サイト内に書いてあることから3問出ます。</p>
+            <p class="key-hint">数字キー 1〜3 でも回答できます。</p>
+            <div class="quiz-card">
+              <p class="quiz-question" data-quiz-question></p>
+              <div class="quiz-choices" data-quiz-choices></div>
+              <p class="mini-game-message" data-quiz-message>正しい選択肢を選んでください。</p>
+            </div>
+            <button class="secondary-game-button" type="button" data-window="riddle-hub">← ハブに戻る</button>
+          </div>
+        </article>
+
+        <article class="window riddle-window mini-game-window" data-panel="game-unsolved" style="--x: 45vw; --y: 21vh">
+          <header class="window-titlebar">
+            <span>game5: 素数パズル</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body mini-game-body">
+            <h2>素数パズル</h2>
+            <p>2より大きいすべての偶数は、2つの素数の和で表せる。これを証明せよ。</p>
+            <p class="key-hint">答えや証明を入力して提出してください。Enter でも送信できます。</p>
+            <div class="number-game-row">
+              <input type="text" data-goldbach-input aria-label="証明や答えを入力" />
+              <button type="button" data-goldbach-submit>提出</button>
+            </div>
+            <p class="mini-game-message" data-goldbach-message>君に解けるだろうか。</p>
+            <button class="secondary-game-button" type="button" data-window="riddle-hub">← ハブに戻る</button>
+          </div>
+        </article>
+
+        <article class="window" data-panel="riddle-clear" style="--x: 42vw; --y: 14vh">
+          <header class="window-titlebar">
+            <span>SECRET FILE</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body riddle-clear-body">
+            <h2>ゲームクリアおめでとうございます</h2>
+            <p>隠しキーワード <strong>rain</strong> を見つけて、雨の名古屋タワーまでたどり着きました。</p>
+            <p>ここまでサイトを探してくれてありがとうございます。</p>
+          </div>
+        </article>
+
+        <article class="window contact-window" data-panel="contact" style="--x: 44vw; --y: 12vh">
+          <header class="window-titlebar">
+            <span>連絡箱</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body">
+            <h2>ご意見・ご感想・質問・連絡</h2>
+            <p>お名前・所属・用件は必須です。返信が必要な場合はメールアドレスもご記入ください。</p>
+            <form class="contact-form" action="https://formspree.io/f/xqeooyly" method="POST" data-contact-form>
+              <label class="field">
+                <span>お名前 <span class="req">必須</span></span>
+                <input type="text" name="name" required autocomplete="name" />
+              </label>
+              <label class="field">
+                <span>所属 <span class="req">必須</span></span>
+                <input type="text" name="affiliation" required placeholder="会社・学校・チームなど" />
+              </label>
+              <label class="field">
+                <span>種別</span>
+                <select name="category">
+                  <option>ご意見</option>
+                  <option>ご感想</option>
+                  <option>質問</option>
+                  <option>お仕事・ご連絡</option>
+                  <option>その他</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>メールアドレス（任意・返信用）</span>
+                <input type="email" name="email" autocomplete="email" placeholder="you@example.com" />
+              </label>
+              <label class="field">
+                <span>用件 <span class="req">必須</span></span>
+                <textarea name="message" rows="5" required placeholder="ご意見・ご感想・質問・ご連絡など"></textarea>
+              </label>
+              <input type="hidden" name="_subject" value="ポートフォリオ連絡箱からのメッセージ" />
+              <div class="contact-actions">
+                <button type="submit" class="contact-submit">送信する</button>
+                <p class="contact-status" data-contact-status aria-live="polite"></p>
+              </div>
+            </form>
+          </div>
+        </article>
+
+        <article class="window board-window" data-panel="board" style="--x: 38vw; --y: 15vh">
+          <header class="window-titlebar">
+            <span>掲示板</span>
+            <button type="button" data-close aria-label="閉じる">×</button>
+          </header>
+          <div class="window-body board-body">
+            <h2>掲示板</h2>
+            <p>他の人へのメッセージや、訪問の足あとを自由に残せます。</p>
+            <p class="board-note" data-board-note></p>
+            <form class="board-form" data-board-form>
+              <input type="text" data-board-name maxlength="24" placeholder="お名前（任意）" autocomplete="name" />
+              <textarea data-board-message rows="2" maxlength="200" placeholder="メッセージや足あとを残す…" required></textarea>
+              <button type="submit" class="board-submit">書き込む</button>
+            </form>
+            <ul class="board-list" data-board-list aria-live="polite"></ul>
+          </div>
+        </article>
+
+        <footer class="taskbar">
+          <button class="start-button" type="button" data-window="about" aria-label="Start">
+            <span class="start-orb"></span>
+            <span class="start-label">Start</span>
+          </button>
+          <time data-clock>17:56<br />2026/06/09</time>
+        </footer>
+      </section>
+    </main>
+    <script src="./script.js"></script>
+  </body>
+</html>
