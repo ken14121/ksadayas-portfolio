@@ -66,18 +66,21 @@
 
 未設定（`REPLACE_WITH_YOUR_ID` のまま）の間は、送信しても「送信先が未設定です」と表示されるだけで、メールは送られません。設定後は、送信内容が登録メールアドレスに届きます。メールアドレス欄に入力があれば、そのまま返信できます。
 
-## 掲示板の設定
+### スパム対策
 
-掲示板は、保存先APIが未設定の間は **その端末の localStorage にだけ** 書き込みを保存します（他の訪問者とは共有されません）。
+- フォームには **ハニーポット（`name="_gotcha"` の隠し入力欄）** を入れてあり、ボットが自動入力するとFormspree側で弾かれます（人間には見えません）。
+- さらに強化したい場合は、Formspreeダッシュボードのフォーム設定で **reCAPTCHA / Spam protection** を有効化できます。
 
-全員で共有する掲示板にするには、公開サーバーに次の2つを返す簡単なAPIを用意し、`script.js` 冒頭の `BOARD_API` にそのURLを設定します。
+## 掲示板の設定（Vercel + Upstash Redis）
 
-- `GET`: 投稿の配列（新しい順）を JSON で返す。各要素は `{ "name": string, "message": string, "time": ISO8601文字列 }`
-- `POST`: 上記1件の JSON を受け取って保存する
+掲示板は **全員共有のチャット**で、保存先は Vercel のサーバーレス関数 `api/board.js`（[Upstash Redis](https://upstash.com/)）です。動かすには無料のRedisをVercelに接続するだけです。
 
-```js
-// script.js
-const BOARD_API = "https://あなたのサーバー/api/board";
-```
+1. Vercel → 対象プロジェクト → **Storage** → **Create Database** → Marketplace の **Upstash (Redis)** を選んで作成（無料枠）。プロジェクトに接続すると、`KV_REST_API_URL` / `KV_REST_API_TOKEN`（または `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`）が**環境変数として自動で入ります**。
+2. 接続すると Vercel が自動で再デプロイし、`/api/board` が有効になります（追加のコードは不要）。
 
-`BOARD_API` を設定すると、自動的に localStorage ではなくサーバー経由（全員共有）の読み書きに切り替わります。
+`api/board.js` の仕様:
+
+- `GET /api/board` … 投稿の配列（古い順）を返す。各要素は `{ "message": string, "time": ISO8601 }`
+- `POST /api/board` … `{ "message": string }` を受け取り保存（サーバー側でサニタイズ・最大200文字・同一IPは30秒で5件までのレート制限・最大200件保持）。
+
+保存先を別のサーバーに変えたい場合は、`script.js` 冒頭の `BOARD_API`（既定 `"/api/board"`）を差し替えれば、その先のGET/POSTを使うようになります。環境変数が未設定の間は `/api/board` が `storage not configured` を返し、掲示板は空表示になります（接続すれば自動で動きます）。

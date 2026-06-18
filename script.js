@@ -25,14 +25,14 @@ const contactForm = document.querySelector("[data-contact-form]");
 const contactStatus = document.querySelector("[data-contact-status]");
 const boardForm = document.querySelector("[data-board-form]");
 const boardList = document.querySelector("[data-board-list]");
-const boardNameInput = document.querySelector("[data-board-name]");
 const boardMessageInput = document.querySelector("[data-board-message]");
 const boardNote = document.querySelector("[data-board-note]");
 
-// 掲示板の保存先。公開サーバーで API を用意したら URL を設定すると全員共有になります。
-// 未設定（空文字）の間は、この端末の localStorage にだけ保存されます。
-const BOARD_API = "";
+// 掲示板の保存先。Vercel のサーバーレス関数 /api/board（Upstash Redis）を使用。
+// ローカルの単純な静的サーバーでは /api/board が無いため空表示になります（Vercel上で動作）。
+const BOARD_API = "/api/board";
 const BOARD_STORAGE_KEY = "profileBoardPosts";
+let boardPollTimer = null;
 
 const leaveMessages = [
   "本当に退室しますか？",
@@ -241,7 +241,10 @@ function openPanel(name) {
     loadAllCode(document.querySelector("[data-code-all]"));
   }
   if (name === "mail" && mailIcon) mailIcon.classList.remove("has-new-mail");
-  if (name === "board") refreshBoard();
+  if (name === "board") {
+    refreshBoard();
+    startBoardPolling();
+  }
   if (name === "terminal" && terminalInput) {
     setTimeout(() => terminalInput.focus(), 120);
   } else if (name === "game-number") {
@@ -991,7 +994,7 @@ function readLocalBoardPosts() {
 
 function writeLocalBoardPosts(posts) {
   try {
-    window.localStorage.setItem(BOARD_STORAGE_KEY, JSON.stringify(posts.slice(0, 100)));
+    window.localStorage.setItem(BOARD_STORAGE_KEY, JSON.stringify(posts.slice(-100)));
   } catch {
     // localStorage が使えない環境（プライベートモードや file://）では何もしない。
   }
@@ -1015,16 +1018,21 @@ async function loadBoardPosts() {
 
 async function addBoardPost(post) {
   if (BOARD_API) {
-    await fetch(BOARD_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(post)
-    });
-    return;
+    try {
+      const response = await fetch(BOARD_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(post)
+      });
+      return response.ok ? { ok: true } : { ok: false, status: response.status };
+    } catch {
+      return { ok: false };
+    }
   }
   const posts = readLocalBoardPosts();
-  posts.unshift(post);
+  posts.push(post);
   writeLocalBoardPosts(posts);
+  return { ok: true };
 }
 
 function formatBoardTime(iso) {
@@ -1042,53 +1050,67 @@ function renderBoard(posts) {
   if (!boardList) return;
   if (boardNote) {
     boardNote.textContent = BOARD_API
-      ? ""
+      ? "コメントは全員に公開されます。個人情報は書き込まないでください。"
       : "※現在はこの端末にだけ保存されます（サーバー公開後は全員で共有予定）。";
   }
   boardList.innerHTML = "";
   if (!posts.length) {
-    const empty = document.createElement("li");
+    const empty = document.createElement("p");
     empty.className = "board-empty";
-    empty.textContent = "まだ書き込みはありません。最初の足あとを残してみてください。";
+    empty.textContent = "まだコメントはありません。最初のひとことをどうぞ。";
     boardList.appendChild(empty);
     return;
   }
+  // posts は古い順（先頭が一番古い）。上に古い・下に新着が並ぶよう順番に追加する。
   posts.forEach((post) => {
-    const item = document.createElement("li");
-    item.className = "board-post";
-
-    const head = document.createElement("div");
-    head.className = "board-post-head";
-    const name = document.createElement("strong");
-    name.textContent = post.name ? post.name : "ゲスト";
-    const time = document.createElement("time");
-    time.textContent = formatBoardTime(post.time);
-    head.append(name, time);
+    const item = document.createElement("div");
+    item.className = "board-msg";
 
     const body = document.createElement("p");
     body.textContent = post.message;
 
-    item.append(head, body);
+    const time = document.createElement("time");
+    time.textContent = formatBoardTime(post.time);
+
+    item.append(body, time);
     boardList.appendChild(item);
   });
+  // 最新（一番下）が見えるようにスクロール
+  boardList.scrollTop = boardList.scrollHeight;
 }
 
 async function refreshBoard() {
   renderBoard(await loadBoardPosts());
 }
 
+function startBoardPolling() {
+  if (boardPollTimer || !BOARD_API) return;
+  boardPollTimer = window.setInterval(() => {
+    const panel = document.querySelector('[data-panel="board"]');
+    if (panel && panel.classList.contains("active")) {
+      refreshBoard();
+    } else {
+      window.clearInterval(boardPollTimer);
+      boardPollTimer = null;
+    }
+  }, 10000);
+}
+
 async function handleBoardSubmit(event) {
   event.preventDefault();
   const message = (boardMessageInput?.value || "").trim();
   if (!message) return;
-  const post = {
-    name: (boardNameInput?.value || "").trim().slice(0, 24),
-    message: message.slice(0, 200),
-    time: new Date().toISOString()
-  };
-  await addBoardPost(post);
-  if (boardMessageInput) boardMessageInput.value = "";
-  refreshBoard();
+  const post = { message: message.slice(0, 200), time: new Date().toISOString() };
+  const result = await addBoardPost(post);
+  if (result.ok) {
+    if (boardMessageInput) boardMessageInput.value = "";
+    refreshBoard();
+  } else if (boardNote) {
+    boardNote.textContent =
+      result.status === 429
+        ? "投稿が多すぎます。少し待ってからもう一度お試しください。"
+        : "送信できませんでした。時間をおいて再度お試しください。";
+  }
 }
 
 enterButton.addEventListener("click", showDesktop);
@@ -1149,6 +1171,15 @@ if (contactForm) {
 
 if (boardForm) {
   boardForm.addEventListener("submit", handleBoardSubmit);
+}
+
+if (boardMessageInput) {
+  boardMessageInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      boardForm.requestSubmit();
+    }
+  });
 }
 
 window.addEventListener("pointerup", endDrag);

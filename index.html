@@ -588,6 +588,7 @@
             <h2>ご意見・ご感想・質問・連絡</h2>
             <p>お名前・所属・用件は必須です。返信が必要な場合はメールアドレスもご記入ください。</p>
             <form class="contact-form" action="https://formspree.io/f/xqeooyly" method="POST" data-contact-form>
+              <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
               <label class="field">
                 <span>お名前 <span class="req">必須</span></span>
                 <input type="text" name="name" required autocomplete="name" />
@@ -630,14 +631,13 @@
           </header>
           <div class="window-body board-body">
             <h2>掲示板</h2>
-            <p>他の人へのメッセージや、訪問の足あとを自由に残せます。</p>
-            <p class="board-note" data-board-note></p>
+            <p>ひとことコメントを残せます。みんなのコメントが下に流れていきます。</p>
+            <div class="board-chat" data-board-list aria-live="polite"></div>
             <form class="board-form" data-board-form>
-              <input type="text" data-board-name maxlength="24" placeholder="お名前（任意）" autocomplete="name" />
-              <textarea data-board-message rows="2" maxlength="200" placeholder="メッセージや足あとを残す…" required></textarea>
-              <button type="submit" class="board-submit">書き込む</button>
+              <textarea data-board-message rows="1" maxlength="200" placeholder="コメントを入力…（Enterで送信）" required></textarea>
+              <button type="submit" class="board-submit">送信</button>
             </form>
-            <ul class="board-list" data-board-list aria-live="polite"></ul>
+            <p class="board-note" data-board-note></p>
           </div>
         </article>
 
