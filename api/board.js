@@ -74,6 +74,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "POST") {
       const ip =
+        req.headers["x-real-ip"] ||
         (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
         "unknown";
       if (await rateLimited(ip)) {
