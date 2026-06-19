@@ -167,6 +167,7 @@ button {
 .login-actions {
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   gap: 18px;
   width: min(620px, 90vw);
