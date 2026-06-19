@@ -361,28 +361,37 @@ function clampWindowSize(panel, width, height) {
   };
 }
 
-function resizeWindow(panel, width, height) {
+function applyWindowRect(panel, left, top, width, height) {
   const size = clampWindowSize(panel, width, height);
-  const rect = panel.getBoundingClientRect();
   const maxX = Math.max(8, window.innerWidth - size.width - 8);
   const maxY = Math.max(8, window.innerHeight - size.height - 62);
   panel.classList.add("is-resized");
   panel.style.width = `${size.width}px`;
   panel.style.height = `${size.height}px`;
   panel.style.maxHeight = "none";
-  panel.style.left = `${Math.min(Math.max(8, rect.left), maxX)}px`;
-  panel.style.top = `${Math.min(Math.max(8, rect.top), maxY)}px`;
+  panel.style.left = `${Math.min(Math.max(8, left), maxX)}px`;
+  panel.style.top = `${Math.min(Math.max(8, top), maxY)}px`;
   panel.style.bottom = "auto";
 }
 
-function beginResize(event, panel) {
+function resizeWindow(panel, width, height) {
+  const rect = panel.getBoundingClientRect();
+  applyWindowRect(panel, rect.left, rect.top, width, height);
+}
+
+function beginResize(event, panel, direction = "se") {
   if (event.button !== 0) return;
   const rect = panel.getBoundingClientRect();
   resizing = {
     panel,
+    direction,
     pointerId: event.pointerId,
     startX: event.clientX,
     startY: event.clientY,
+    startLeft: rect.left,
+    startTop: rect.top,
+    startRight: rect.right,
+    startBottom: rect.bottom,
     startWidth: rect.width,
     startHeight: rect.height
   };
@@ -394,11 +403,22 @@ function beginResize(event, panel) {
 
 function resizePanel(event) {
   if (!resizing || event.pointerId !== resizing.pointerId) return;
-  resizeWindow(
-    resizing.panel,
-    resizing.startWidth + event.clientX - resizing.startX,
-    resizing.startHeight + event.clientY - resizing.startY
-  );
+  const dx = event.clientX - resizing.startX;
+  const dy = event.clientY - resizing.startY;
+  const direction = resizing.direction;
+  let width = resizing.startWidth;
+  let height = resizing.startHeight;
+
+  if (direction.includes("e")) width = resizing.startWidth + dx;
+  if (direction.includes("w")) width = resizing.startWidth - dx;
+  if (direction.includes("s")) height = resizing.startHeight + dy;
+  if (direction.includes("n")) height = resizing.startHeight - dy;
+
+  const size = clampWindowSize(resizing.panel, width, height);
+  const left = direction.includes("w") ? resizing.startRight - size.width : resizing.startLeft;
+  const top = direction.includes("n") ? resizing.startBottom - size.height : resizing.startTop;
+  applyWindowRect(resizing.panel, left, top, size.width, size.height);
+  event.preventDefault();
 }
 
 function endResize(event) {
@@ -470,12 +490,13 @@ function endWindowPointer(event) {
 }
 
 function createResizeHandle(panel) {
-  const handle = document.createElement("button");
-  handle.type = "button";
-  handle.className = "window-resize-handle";
-  handle.setAttribute("aria-label", "ウィンドウサイズを変更");
-  handle.addEventListener("pointerdown", (event) => beginResize(event, panel));
-  panel.appendChild(handle);
+  ["n", "e", "s", "w", "ne", "nw", "se", "sw"].forEach((direction) => {
+    const handle = document.createElement("span");
+    handle.className = `window-resize-handle resize-${direction}`;
+    handle.setAttribute("aria-hidden", "true");
+    handle.addEventListener("pointerdown", (event) => beginResize(event, panel, direction));
+    panel.appendChild(handle);
+  });
 }
 
 function appendTerminalLine(text, className = "") {
