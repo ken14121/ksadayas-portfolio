@@ -6,6 +6,8 @@ const leaveMessage = document.querySelector("[data-leave-message]");
 const openers = document.querySelectorAll("[data-window]");
 const panels = document.querySelectorAll("[data-panel]");
 const clock = document.querySelector("[data-clock]");
+const clockTopTime = document.querySelector("[data-clock-top-time]");
+const clockTopDate = document.querySelector("[data-clock-top-date]");
 const terminalForm = document.querySelector("[data-terminal-form]");
 const terminalInput = document.querySelector("[data-terminal-input]");
 const terminalLog = document.querySelector("[data-terminal-log]");
@@ -273,6 +275,8 @@ function updateClock() {
     day: "2-digit"
   }).format(now);
   clock.innerHTML = `${time}<br>${date}`;
+  if (clockTopTime) clockTopTime.textContent = time;
+  if (clockTopDate) clockTopDate.textContent = date;
 }
 
 function beginDrag(event, panel) {
