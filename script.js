@@ -168,17 +168,38 @@ const quizQuestions = [
   {
     text: "Q1. 僕の名前は？",
     choices: ["ドラえもん", "貞保健太郎", "村上杜夢"],
-    answer: "2"
+    answer: "2",
+    explanations: [
+      { text: "ドラえもんは違いますね。" },
+      { text: "正解！僕です、貞保健太郎です。" },
+      {
+        text: "村上杜夢さんは僕の大親友。Microsoft（米国本社）直下のグローバル組織アジアチームで Cloud Solution Architect として働くITエンジニアで、国内中堅企業向け Copilot 製品の技術責任者として AI 変革を推進しています。",
+        href: "https://www.linkedin.com/in/tom-murakami",
+        hrefLabel: "LinkedInプロフィール"
+      }
+    ]
   },
   {
     text: "Q2. 大学で学んでいる分野として、このサイトに書かれているものは？",
     choices: ["情報工学・AI", "製菓", "考古学"],
-    answer: "1"
+    answer: "1",
+    explanations: [
+      { text: "正解です。" },
+      { text: "お菓子作りは難しくて諦めました。" },
+      { text: "恐竜学部、面白そうですよね。" }
+    ]
   },
   {
     text: "Q3. 42 Tokyo のコードビューに入っている課題は？",
     choices: ["ft_printf と push_swap", "Minecraft Mod", "家計簿アプリ"],
-    answer: "1"
+    answer: "1",
+    explanations: [
+      { text: "正解です。" },
+      {
+        text: "レイナ。お前には何ができるんだ？ジェット、レイズのように体を張ったエントリーもしなければ、他のサポートキャラのように優秀なアビリティも持っていない。だから生き残っても価値がないのに誰よりもあとにピークして、味方の死を餌にキル数を増やす。本隊が壊滅しているのに意味のないラークをする。しまいにはアンチエコで何故か強気に勝負して、相手に武器を落とす。本当になんの為に存在しているんだ。早くお前がいるから負けていることに気づけ。弱いんだからマインクラフトでもやっておけ、レイナ。"
+      },
+      { text: "家計簿をつける習慣がないので、たまにお金が消えます。" }
+    ]
   }
 ];
 
@@ -244,7 +265,7 @@ function openPanel(name) {
   }
   if (name === "mail" && mailIcon) mailIcon.classList.remove("has-new-mail");
   if (name === "board") {
-    refreshBoard();
+    refreshBoard(true);
     startBoardPolling();
   }
   if (name === "terminal" && terminalInput) {
@@ -457,11 +478,37 @@ function submitNumberGuess() {
   input.focus();
 }
 
+function renderQuizExplanation(explanation) {
+  const expEl = document.querySelector("[data-quiz-explanation]");
+  if (!expEl) return;
+  expEl.innerHTML = "";
+  if (!explanation) {
+    expEl.hidden = true;
+    return;
+  }
+  const paragraph = document.createElement("p");
+  paragraph.textContent = explanation.text;
+  expEl.appendChild(paragraph);
+  if (explanation.href) {
+    const link = document.createElement("a");
+    link.href = explanation.href;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = explanation.hrefLabel || explanation.href;
+    expEl.appendChild(link);
+  }
+  expEl.hidden = false;
+}
+
 function renderQuizQuestion() {
   const question = document.querySelector("[data-quiz-question]");
   const choices = document.querySelector("[data-quiz-choices]");
   const message = document.querySelector("[data-quiz-message]");
+  const nextBtn = document.querySelector("[data-quiz-next]");
   if (!question || !choices || !message) return;
+
+  renderQuizExplanation(null);
+  if (nextBtn) nextBtn.hidden = true;
 
   if (riddleProgress.quizgame) {
     question.textContent = "クイズはクリア済みです。";
@@ -485,22 +532,36 @@ function renderQuizQuestion() {
 
 function submitQuizAnswer(choice) {
   const message = document.querySelector("[data-quiz-message]");
+  const nextBtn = document.querySelector("[data-quiz-next]");
   const current = quizQuestions[quizIndex];
   if (!current || !message) return;
 
+  const index = Number(choice) - 1;
+  renderQuizExplanation(current.explanations ? current.explanations[index] : null);
+
   if (choice !== current.answer) {
-    message.textContent = "不正解。サイト内の情報をもう一度探してみてください。";
+    message.textContent = "不正解。解説を読んで、もう一度選んでみてください。";
+    if (nextBtn) nextBtn.hidden = true;
     return;
   }
 
-  quizIndex += 1;
-  if (quizIndex >= quizQuestions.length) {
-    message.textContent = `全問正解。${riddleLetters.quizgame} を獲得しました。`;
+  // 正解：選択肢を固定して解説をじっくり読めるように
+  document
+    .querySelectorAll("[data-quiz-choices] button")
+    .forEach((button) => (button.disabled = true));
+
+  const isLast = quizIndex >= quizQuestions.length - 1;
+  if (isLast) {
+    message.textContent = `全問正解！ ${riddleLetters.quizgame} を獲得しました。`;
     completeRiddleGame("quizgame");
-    renderQuizQuestion();
-    return;
+    if (nextBtn) nextBtn.hidden = true;
+  } else {
+    message.textContent = "正解！";
+    if (nextBtn) {
+      nextBtn.hidden = false;
+      nextBtn.textContent = "次の問題へ";
+    }
   }
-  renderQuizQuestion();
 }
 
 function submitGoldbach() {
@@ -728,6 +789,13 @@ function initRiddleGames() {
     if (index >= 0 && index < buttons.length) {
       event.preventDefault();
       buttons[index].click();
+    }
+  });
+
+  document.querySelector("[data-quiz-next]")?.addEventListener("click", () => {
+    if (quizIndex < quizQuestions.length - 1) {
+      quizIndex += 1;
+      renderQuizQuestion();
     }
   });
 }
@@ -1053,8 +1121,11 @@ function formatBoardTime(iso) {
   }).format(date);
 }
 
-function renderBoard(posts) {
+function renderBoard(posts, forceScroll) {
   if (!boardList) return;
+  // 再描画前に、ユーザーが一番下付近にいるか判定（読みかけで勝手に下へ飛ばさないため）
+  const wasAtBottom =
+    boardList.scrollHeight - boardList.scrollTop - boardList.clientHeight < 48;
   if (boardNote) {
     boardNote.textContent = BOARD_API
       ? "コメントは全員に公開されます。個人情報は書き込まないでください。"
@@ -1082,12 +1153,14 @@ function renderBoard(posts) {
     item.append(body, time);
     boardList.appendChild(item);
   });
-  // 最新（一番下）が見えるようにスクロール
-  boardList.scrollTop = boardList.scrollHeight;
+  // 最下部にいた場合・強制時のみ最新（一番下）へスクロール
+  if (forceScroll || wasAtBottom) {
+    boardList.scrollTop = boardList.scrollHeight;
+  }
 }
 
-async function refreshBoard() {
-  renderBoard(await loadBoardPosts());
+async function refreshBoard(forceScroll) {
+  renderBoard(await loadBoardPosts(), forceScroll);
 }
 
 function startBoardPolling() {
@@ -1100,7 +1173,7 @@ function startBoardPolling() {
       window.clearInterval(boardPollTimer);
       boardPollTimer = null;
     }
-  }, 10000);
+  }, 15000);
 }
 
 async function handleBoardSubmit(event) {
@@ -1111,7 +1184,7 @@ async function handleBoardSubmit(event) {
   const result = await addBoardPost(post);
   if (result.ok) {
     if (boardMessageInput) boardMessageInput.value = "";
-    refreshBoard();
+    refreshBoard(true);
   } else if (boardNote) {
     boardNote.textContent =
       result.status === 429

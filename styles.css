@@ -1193,6 +1193,29 @@ button {
   background: rgba(255, 255, 255, 0.82);
 }
 
+.quiz-explanation {
+  padding: 9px 11px;
+  border: 1px solid #cdd9e6;
+  border-radius: 8px;
+  background: #eef4fb;
+  color: #1c2a3d;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.quiz-explanation p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.quiz-explanation a {
+  display: inline-block;
+  margin-top: 6px;
+  color: #0f65c8;
+  font-weight: 700;
+}
+
 .quiz-question {
   margin: 0 !important;
   color: #172033;
@@ -1624,7 +1647,33 @@ button {
     pointer-events: none;
   }
 
-  .taskbar time {
+  .msb-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .msb-date {
+    font-size: 12px;
+  }
+
+  .msb-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .msb-icon {
+    display: block;
+    width: auto;
+    height: 11px;
+  }
+
+  .msb-battery {
+    height: 13px;
+  }
+
+  .taskbar {
     display: none;
   }
 
@@ -1671,14 +1720,14 @@ button {
   .terminal-window {
     left: 10px;
     top: auto;
-    bottom: 62px;
+    bottom: 12px;
     width: calc(100vw - 20px);
-    max-height: 53vh;
+    max-height: 58vh;
     background: rgba(246, 251, 255, 0.99);
   }
 
   .window-body {
-    max-height: calc(53vh - 32px);
+    max-height: calc(58vh - 32px);
     overflow: auto;
   }
 
@@ -1689,7 +1738,7 @@ button {
   .vscode-layout {
     grid-template-columns: 1fr;
     min-height: 0;
-    max-height: calc(53vh - 32px);
+    max-height: calc(58vh - 32px);
     overflow: auto;
   }
 
@@ -1731,7 +1780,7 @@ button {
   .mail-app {
     grid-template-columns: 1fr;
     min-height: 0;
-    max-height: calc(53vh - 32px);
+    max-height: calc(58vh - 32px);
     overflow: auto;
   }
 
