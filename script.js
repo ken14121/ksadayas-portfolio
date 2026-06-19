@@ -29,12 +29,16 @@ const boardForm = document.querySelector("[data-board-form]");
 const boardList = document.querySelector("[data-board-list]");
 const boardMessageInput = document.querySelector("[data-board-message]");
 const boardNote = document.querySelector("[data-board-note]");
+const boardPhotoInput = document.querySelector("[data-board-photo]");
+const boardPhotoPreview = document.querySelector("[data-board-photo-preview]");
 
 // 掲示板の保存先。Vercel のサーバーレス関数 /api/board（Upstash Redis）を使用。
 // ローカルの単純な静的サーバーでは /api/board が無いため空表示になります（Vercel上で動作）。
 const BOARD_API = "/api/board";
 const BOARD_STORAGE_KEY = "profileBoardPosts";
+const BOARD_MAX_IMAGE_FILE_BYTES = 4 * 1024 * 1024;
 let boardPollTimer = null;
+let boardPhotoData = null;
 
 const leaveMessages = [
   "本当に退室しますか？",
@@ -145,6 +149,9 @@ const mailMessages = {
 let topZ = 20;
 let leaveAttempts = 0;
 let dragging = null;
+let resizing = null;
+const pinchPointers = new Map();
+let pinching = null;
 let puzzleSolved = false;
 let codeLoaded = false;
 let audioContext = null;
@@ -302,6 +309,7 @@ function updateClock() {
 
 function beginDrag(event, panel) {
   if (event.button !== 0) return;
+  if (event.pointerType === "touch" && getPanelTouchPointers(panel).length) return;
   if (event.target.closest("button, input, textarea, a")) return;
   const rect = panel.getBoundingClientRect();
   dragging = {
@@ -338,6 +346,136 @@ function endDrag(event) {
     dragging.panel.releasePointerCapture(pointerId);
   }
   dragging = null;
+}
+
+function clampWindowSize(panel, width, height) {
+  const minWidth = Math.min(300, window.innerWidth - 24);
+  const minHeight = 178;
+  const maxWidth = Math.max(minWidth, window.innerWidth - 16);
+  const maxHeight = Math.max(minHeight, window.innerHeight - 62);
+  const preferredWidth = Math.min(Math.max(width, minWidth), maxWidth);
+  const preferredHeight = Math.min(Math.max(height, minHeight), maxHeight);
+  return {
+    width: preferredWidth,
+    height: preferredHeight
+  };
+}
+
+function resizeWindow(panel, width, height) {
+  const size = clampWindowSize(panel, width, height);
+  const rect = panel.getBoundingClientRect();
+  const maxX = Math.max(8, window.innerWidth - size.width - 8);
+  const maxY = Math.max(8, window.innerHeight - size.height - 62);
+  panel.classList.add("is-resized");
+  panel.style.width = `${size.width}px`;
+  panel.style.height = `${size.height}px`;
+  panel.style.maxHeight = "none";
+  panel.style.left = `${Math.min(Math.max(8, rect.left), maxX)}px`;
+  panel.style.top = `${Math.min(Math.max(8, rect.top), maxY)}px`;
+  panel.style.bottom = "auto";
+}
+
+function beginResize(event, panel) {
+  if (event.button !== 0) return;
+  const rect = panel.getBoundingClientRect();
+  resizing = {
+    panel,
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    startWidth: rect.width,
+    startHeight: rect.height
+  };
+  panel.style.zIndex = String(++topZ);
+  panel.setPointerCapture(event.pointerId);
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+function resizePanel(event) {
+  if (!resizing || event.pointerId !== resizing.pointerId) return;
+  resizeWindow(
+    resizing.panel,
+    resizing.startWidth + event.clientX - resizing.startX,
+    resizing.startHeight + event.clientY - resizing.startY
+  );
+}
+
+function endResize(event) {
+  if (!resizing) return;
+  const pointerId = event?.pointerId ?? resizing.pointerId;
+  if (pointerId !== undefined && resizing.panel.hasPointerCapture(pointerId)) {
+    resizing.panel.releasePointerCapture(pointerId);
+  }
+  resizing = null;
+}
+
+function getPanelTouchPointers(panel) {
+  return [...pinchPointers.values()].filter((pointer) => pointer.panel === panel);
+}
+
+function distanceBetweenPointers(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function trackPinchPointer(event, panel) {
+  if (event.pointerType !== "touch") return;
+  if (event.target.closest("button, input, textarea, a, label, canvas")) return;
+  pinchPointers.set(event.pointerId, {
+    panel,
+    x: event.clientX,
+    y: event.clientY
+  });
+  const active = getPanelTouchPointers(panel);
+  if (active.length < 2) return;
+
+  const [first, second] = active.slice(-2);
+  const rect = panel.getBoundingClientRect();
+  endDrag();
+  pinching = {
+    panel,
+    pointerIds: [first, second].map((pointer) =>
+      [...pinchPointers.entries()].find(([, value]) => value === pointer)?.[0]
+    ),
+    startDistance: Math.max(1, distanceBetweenPointers(first, second)),
+    startWidth: rect.width,
+    startHeight: rect.height
+  };
+  panel.classList.add("is-resized");
+  event.preventDefault();
+}
+
+function updatePinchPointer(event) {
+  if (event.pointerType !== "touch" || !pinchPointers.has(event.pointerId)) return;
+  const current = pinchPointers.get(event.pointerId);
+  current.x = event.clientX;
+  current.y = event.clientY;
+  if (!pinching || !pinching.pointerIds.includes(event.pointerId)) return;
+  const pointers = pinching.pointerIds.map((id) => pinchPointers.get(id)).filter(Boolean);
+  if (pointers.length < 2) return;
+  const scale = distanceBetweenPointers(pointers[0], pointers[1]) / pinching.startDistance;
+  resizeWindow(pinching.panel, pinching.startWidth * scale, pinching.startHeight * scale);
+  event.preventDefault();
+}
+
+function endPinchPointer(event) {
+  if (event?.pointerId !== undefined) pinchPointers.delete(event.pointerId);
+  if (pinching?.pointerIds.includes(event?.pointerId)) pinching = null;
+}
+
+function endWindowPointer(event) {
+  endResize(event);
+  endPinchPointer(event);
+  endDrag(event);
+}
+
+function createResizeHandle(panel) {
+  const handle = document.createElement("button");
+  handle.type = "button";
+  handle.className = "window-resize-handle";
+  handle.setAttribute("aria-label", "ウィンドウサイズを変更");
+  handle.addEventListener("pointerdown", (event) => beginResize(event, panel));
+  panel.appendChild(handle);
 }
 
 function appendTerminalLine(text, className = "") {
@@ -1121,6 +1259,62 @@ function formatBoardTime(iso) {
   }).format(date);
 }
 
+function compressBoardImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("read"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("decode"));
+      img.onload = () => {
+        const maxSide = 520;
+        let { width, height } = img;
+        if (Math.max(width, height) > maxSide) {
+          if (width >= height) {
+            height = Math.round((height * maxSide) / width);
+            width = maxSide;
+          } else {
+            width = Math.round((width * maxSide) / height);
+            height = maxSide;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.55));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function showBoardPhotoPreview(dataUrl) {
+  if (!boardPhotoPreview) return;
+  boardPhotoPreview.innerHTML = "";
+  const img = document.createElement("img");
+  img.src = dataUrl;
+  img.alt = "添付プレビュー";
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "board-photo-remove";
+  remove.textContent = "×";
+  remove.setAttribute("aria-label", "写真を取り消す");
+  remove.addEventListener("click", clearBoardPhoto);
+  boardPhotoPreview.append(img, remove);
+  boardPhotoPreview.hidden = false;
+}
+
+function clearBoardPhoto() {
+  boardPhotoData = null;
+  if (boardPhotoInput) boardPhotoInput.value = "";
+  if (boardPhotoPreview) {
+    boardPhotoPreview.innerHTML = "";
+    boardPhotoPreview.hidden = true;
+  }
+}
+
 function renderBoard(posts, forceScroll) {
   if (!boardList) return;
   // 再描画前に、ユーザーが一番下付近にいるか判定（読みかけで勝手に下へ飛ばさないため）
@@ -1144,13 +1338,24 @@ function renderBoard(posts, forceScroll) {
     const item = document.createElement("div");
     item.className = "board-msg";
 
-    const body = document.createElement("p");
-    body.textContent = post.message;
+    if (post.image) {
+      const photo = document.createElement("img");
+      photo.className = "board-msg-img";
+      photo.src = post.image;
+      photo.alt = "添付画像";
+      photo.loading = "lazy";
+      item.appendChild(photo);
+    }
+    if (post.message) {
+      const body = document.createElement("p");
+      body.textContent = post.message;
+      item.appendChild(body);
+    }
 
     const time = document.createElement("time");
     time.textContent = formatBoardTime(post.time);
+    item.appendChild(time);
 
-    item.append(body, time);
     boardList.appendChild(item);
   });
   // 最下部にいた場合・強制時のみ最新（一番下）へスクロール
@@ -1179,11 +1384,13 @@ function startBoardPolling() {
 async function handleBoardSubmit(event) {
   event.preventDefault();
   const message = (boardMessageInput?.value || "").trim();
-  if (!message) return;
+  if (!message && !boardPhotoData) return;
   const post = { message: message.slice(0, 200), time: new Date().toISOString() };
+  if (boardPhotoData) post.image = boardPhotoData;
   const result = await addBoardPost(post);
   if (result.ok) {
     if (boardMessageInput) boardMessageInput.value = "";
+    clearBoardPhoto();
     refreshBoard(true);
   } else if (boardNote) {
     boardNote.textContent =
@@ -1211,16 +1418,22 @@ panels.forEach((panel) => {
   panel.tabIndex = -1;
   const titleLabel = titlebar.querySelector("span");
   if (titleLabel) panel.setAttribute("aria-label", titleLabel.textContent.trim());
+  createResizeHandle(panel);
 
-  panel.addEventListener("pointerdown", () => {
+  panel.addEventListener("pointerdown", (event) => {
     panel.style.zIndex = String(++topZ);
+    trackPinchPointer(event, panel);
   });
 
   titlebar.addEventListener("pointerdown", (event) => beginDrag(event, panel));
-  panel.addEventListener("pointermove", dragPanel);
-  panel.addEventListener("pointerup", endDrag);
-  panel.addEventListener("pointercancel", endDrag);
-  panel.addEventListener("lostpointercapture", endDrag);
+  panel.addEventListener("pointermove", (event) => {
+    resizePanel(event);
+    updatePinchPointer(event);
+    dragPanel(event);
+  });
+  panel.addEventListener("pointerup", endWindowPointer);
+  panel.addEventListener("pointercancel", endWindowPointer);
+  panel.addEventListener("lostpointercapture", endWindowPointer);
   close.addEventListener("click", () => closePanel(close));
 });
 
@@ -1262,7 +1475,32 @@ if (boardMessageInput) {
   });
 }
 
-window.addEventListener("pointerup", endDrag);
+if (boardPhotoInput) {
+  boardPhotoInput.addEventListener("change", async () => {
+    const file = boardPhotoInput.files && boardPhotoInput.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      if (boardNote) boardNote.textContent = "画像ファイルを選択してください。";
+      clearBoardPhoto();
+      return;
+    }
+    if (file.size > BOARD_MAX_IMAGE_FILE_BYTES) {
+      if (boardNote) boardNote.textContent = "画像が大きすぎます。4MB以下の画像を選択してください。";
+      clearBoardPhoto();
+      return;
+    }
+    try {
+      boardPhotoData = await compressBoardImage(file);
+      showBoardPhotoPreview(boardPhotoData);
+    } catch {
+      if (boardNote) boardNote.textContent = "画像を読み込めませんでした。";
+      clearBoardPhoto();
+    }
+  });
+}
+
+window.addEventListener("pointerup", endWindowPointer);
+window.addEventListener("pointercancel", endWindowPointer);
 
 window.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;

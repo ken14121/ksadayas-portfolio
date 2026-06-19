@@ -11,10 +11,19 @@ const REDIS_TOKEN =
 
 const KEY = "board:comments";
 const MAX_KEEP = 200; // 保持する最大件数
-const MAX_RETURN = 100; // 一度に返す最大件数
+const MAX_RETURN = 60; // 一度に返す最大件数（画像入りのため抑えめ）
 const MAX_LEN = 200; // 1コメントの最大文字数
+const MAX_IMAGE_LEN = 200000; // 添付画像(data URL)の最大長 ≈ 約150KB
 const RATE_LIMIT = 5; // 同一IPあたりの投稿数
 const RATE_WINDOW = 30; // 秒
+
+function validImage(value) {
+  return (
+    typeof value === "string" &&
+    /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value) &&
+    value.length <= MAX_IMAGE_LEN
+  );
+}
 
 async function redis(command) {
   const response = await fetch(REDIS_URL, {
@@ -91,12 +100,14 @@ module.exports = async function handler(req, res) {
         }
       }
       const message = sanitize((body && body.message) || "");
-      if (!message) {
-        res.status(400).json({ error: "empty message" });
+      const image = body && validImage(body.image) ? body.image : "";
+      if (!message && !image) {
+        res.status(400).json({ error: "empty" });
         return;
       }
 
       const post = { message, time: new Date().toISOString() };
+      if (image) post.image = image;
       await redis(["RPUSH", KEY, JSON.stringify(post)]);
       await redis(["LTRIM", KEY, String(-MAX_KEEP), "-1"]);
       res.status(200).json({ ok: true, post });
