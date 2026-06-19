@@ -276,7 +276,6 @@ function updateClock() {
 }
 
 function beginDrag(event, panel) {
-  if (window.matchMedia("(max-width: 760px)").matches) return;
   if (event.button !== 0) return;
   if (event.target.closest("button, input, textarea, a")) return;
   const rect = panel.getBoundingClientRect();
@@ -286,6 +285,10 @@ function beginDrag(event, panel) {
     offsetY: event.clientY - rect.top,
     pointerId: event.pointerId
   };
+  // 現在位置を top/left に固定（モバイルは bottom 基準なので解除して上下に動かせるように）
+  panel.style.left = `${rect.left}px`;
+  panel.style.top = `${rect.top}px`;
+  panel.style.bottom = "auto";
   panel.style.zIndex = String(++topZ);
   panel.setPointerCapture(event.pointerId);
   event.preventDefault();
