@@ -148,7 +148,6 @@ const mailMessages = {
 
 let topZ = 20;
 let leaveAttempts = 0;
-let leaveClicks = 0;
 let leaveGame = null;
 let dragging = null;
 let resizing = null;
@@ -240,6 +239,11 @@ function showDesktop() {
 function moveLeaveButton() {
   if (leaveGame) return;
   leaveAttempts += 1;
+  // PC で20回逃げたら連打ゲームを起動
+  if (leaveAttempts >= 20 && window.matchMedia("(min-width: 761px)").matches) {
+    openLeaveGame();
+    return;
+  }
   const effectiveAttempt = Math.min(leaveAttempts, 4);
   const maxWidth = Math.max(180, Math.min(window.innerWidth - 56, 520));
   const width = Math.min(170 + effectiveAttempt * 82, maxWidth);
@@ -332,17 +336,17 @@ function finishLeaveGame() {
 function closeLeaveGame() {
   if (leaveGame && leaveGame.interval) window.clearInterval(leaveGame.interval);
   leaveGame = null;
-  leaveClicks = 0;
+  leaveAttempts = 0;
   if (leaveGameEl) leaveGameEl.hidden = true;
-}
-
-function onLeaveButtonClick() {
-  if (leaveGame) return;
-  moveLeaveButton();
-  leaveClicks += 1;
-  if (leaveClicks >= 20 && window.matchMedia("(min-width: 761px)").matches) {
-    openLeaveGame();
-  }
+  // 通常のログイン画面に戻す（入室ボタンの肥大化・退室ボタンの位置をリセット）
+  enterButton.style.removeProperty("--enter-width");
+  enterButton.style.removeProperty("--enter-height");
+  enterButton.style.removeProperty("--enter-font");
+  leaveButton.classList.remove("is-floating");
+  leaveButton.style.left = "";
+  leaveButton.style.top = "";
+  leaveButton.textContent = "退室";
+  if (leaveMessage) leaveMessage.textContent = "入室してくれますよね？";
 }
 
 function openPanel(name) {
@@ -1510,7 +1514,7 @@ async function handleBoardSubmit(event) {
 
 enterButton.addEventListener("click", showDesktop);
 leaveButton.addEventListener("pointerenter", moveLeaveButton);
-leaveButton.addEventListener("click", onLeaveButtonClick);
+leaveButton.addEventListener("click", moveLeaveButton);
 leaveButton.addEventListener("focus", moveLeaveButton);
 
 if (leaveGameTap) leaveGameTap.addEventListener("click", tapLeaveGame);
