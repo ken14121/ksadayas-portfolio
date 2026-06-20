@@ -239,7 +239,7 @@ function showDesktop() {
 function moveLeaveButton() {
   if (leaveGame) return;
   leaveAttempts += 1;
-  // PC で20回逃げたら連打ゲームを起動
+  // PC で20回逃げたらエイムゲームを起動
   if (leaveAttempts >= 20 && window.matchMedia("(min-width: 761px)").matches) {
     openLeaveGame();
     return;
@@ -265,8 +265,9 @@ function moveLeaveButton() {
   leaveMessage.textContent = leaveMessages[Math.min(leaveAttempts - 1, leaveMessages.length - 1)];
 }
 
-// --- 退室ボタン 連打ゲーム（PC限定の隠し要素）---
+// --- 退室ボタン エイムゲーム（PC限定の隠し要素）---
 const leaveGameEl = document.querySelector("[data-leave-game]");
+const leaveGameStage = document.querySelector("[data-leave-game-stage]");
 const leaveGameTap = document.querySelector("[data-leave-game-tap]");
 const leaveGameTimerEl = document.querySelector("[data-leave-game-timer]");
 const leaveGameScoreEl = document.querySelector("[data-leave-game-score]");
@@ -275,12 +276,12 @@ const leaveGameResultEl = document.querySelector("[data-leave-game-result]");
 const leaveGameActionsEl = document.querySelector("[data-leave-game-actions]");
 
 function leaveGameRank(score) {
-  if (score >= 140) return "化け物連打！ 指、大丈夫？";
-  if (score >= 110) return "達人級！ めちゃ速い！";
-  if (score >= 80) return "かなり速い！";
-  if (score >= 50) return "good！ いい連打";
-  if (score >= 25) return "ウォーミングアップ完了";
-  return "もう少し連打してみよう";
+  if (score >= 30) return "神エイム！ほぼ逃げ場なし。";
+  if (score >= 24) return "反応速度かなり鋭い！";
+  if (score >= 18) return "いい追跡。よく当てました。";
+  if (score >= 12) return "十分うまい！";
+  if (score >= 7) return "狙いは合ってきています。";
+  return "退室がまだ逃げ切っています。";
 }
 
 function updateLeaveGameDisplay() {
@@ -289,52 +290,115 @@ function updateLeaveGameDisplay() {
   if (leaveGameScoreEl) leaveGameScoreEl.textContent = String(leaveGame.score);
 }
 
+function moveLeaveGameTarget() {
+  if (!leaveGameStage || !leaveGameTap) return;
+  const padding = 12;
+  const stageWidth = leaveGameStage.clientWidth;
+  const stageHeight = leaveGameStage.clientHeight;
+  const targetWidth = leaveGameTap.offsetWidth || 104;
+  const targetHeight = leaveGameTap.offsetHeight || 54;
+  const maxX = Math.max(padding, stageWidth - targetWidth - padding);
+  const maxY = Math.max(padding, stageHeight - targetHeight - padding);
+  const x = Math.round(padding + Math.random() * Math.max(0, maxX - padding));
+  const y = Math.round(padding + Math.random() * Math.max(0, maxY - padding));
+  const rotate = Math.round(-7 + Math.random() * 14);
+
+  leaveGameTap.classList.add("is-armed");
+  leaveGameTap.style.left = `${x}px`;
+  leaveGameTap.style.top = `${y}px`;
+  leaveGameTap.style.setProperty("--target-rotate", `${rotate}deg`);
+}
+
+function queueLeaveGameMove() {
+  if (!leaveGame || leaveGame.ended || !leaveGame.started) return;
+  if (leaveGame.moveTimer) window.clearTimeout(leaveGame.moveTimer);
+  const delay = Math.max(560, 1220 - leaveGame.score * 24);
+  leaveGame.moveTimer = window.setTimeout(() => {
+    if (!leaveGame || leaveGame.ended) return;
+    moveLeaveGameTarget();
+    queueLeaveGameMove();
+  }, delay);
+}
+
+function startLeaveGameTimer() {
+  if (!leaveGame || leaveGame.started) return;
+  leaveGame.started = true;
+  if (leaveGameSubEl) {
+    leaveGameSubEl.textContent = "逃げる退室を狙ってクリック。連打ではなく、追いかけて当てるゲームです。";
+  }
+  const endAt = performance.now() + 20000;
+  leaveGame.interval = window.setInterval(() => {
+    leaveGame.timeLeft = Math.max(0, (endAt - performance.now()) / 1000);
+    updateLeaveGameDisplay();
+    if (leaveGame.timeLeft <= 0) finishLeaveGame();
+  }, 80);
+  queueLeaveGameMove();
+}
+
 function openLeaveGame() {
   if (!leaveGameEl) return;
-  leaveGame = { score: 0, timeLeft: 20, started: false, ended: false, interval: null };
+  leaveGame = {
+    score: 0,
+    timeLeft: 20,
+    started: false,
+    ended: false,
+    interval: null,
+    moveTimer: null,
+    lastHitAt: 0
+  };
   leaveGameEl.hidden = false;
   if (leaveGameSubEl) {
     leaveGameSubEl.hidden = false;
-    leaveGameSubEl.textContent = "20秒で「退室」を何回押せる？ボタンを押してスタート！";
+    leaveGameSubEl.textContent = "20秒で逃げる「退室」を何回捕まえられる？ボタンを狙ってスタート！";
   }
   if (leaveGameResultEl) leaveGameResultEl.hidden = true;
   if (leaveGameActionsEl) leaveGameActionsEl.hidden = true;
-  if (leaveGameTap) leaveGameTap.disabled = false;
+  if (leaveGameTap) {
+    leaveGameTap.disabled = false;
+    leaveGameTap.classList.remove("is-hit", "is-armed");
+    leaveGameTap.style.left = "";
+    leaveGameTap.style.top = "";
+    leaveGameTap.style.removeProperty("--target-rotate");
+    window.requestAnimationFrame(moveLeaveGameTarget);
+  }
   updateLeaveGameDisplay();
 }
 
-function tapLeaveGame() {
+function tapLeaveGame(event) {
+  event?.preventDefault();
   if (!leaveGame || leaveGame.ended) return;
-  if (!leaveGame.started) {
-    leaveGame.started = true;
-    if (leaveGameSubEl) leaveGameSubEl.hidden = true;
-    const endAt = performance.now() + 20000;
-    leaveGame.interval = window.setInterval(() => {
-      leaveGame.timeLeft = Math.max(0, (endAt - performance.now()) / 1000);
-      updateLeaveGameDisplay();
-      if (leaveGame.timeLeft <= 0) finishLeaveGame();
-    }, 80);
-  }
+  startLeaveGameTimer();
+  const now = performance.now();
+  if (now - leaveGame.lastHitAt < 120) return;
+  leaveGame.lastHitAt = now;
   leaveGame.score += 1;
+  if (leaveGameTap) {
+    leaveGameTap.classList.add("is-hit");
+    window.setTimeout(() => leaveGameTap?.classList.remove("is-hit"), 90);
+  }
+  moveLeaveGameTarget();
+  queueLeaveGameMove();
   updateLeaveGameDisplay();
 }
 
 function finishLeaveGame() {
   if (!leaveGame) return;
   if (leaveGame.interval) window.clearInterval(leaveGame.interval);
+  if (leaveGame.moveTimer) window.clearTimeout(leaveGame.moveTimer);
   leaveGame.ended = true;
   leaveGame.timeLeft = 0;
   updateLeaveGameDisplay();
   if (leaveGameTap) leaveGameTap.disabled = true;
   if (leaveGameResultEl) {
     leaveGameResultEl.hidden = false;
-    leaveGameResultEl.textContent = `結果: ${leaveGame.score}回！ ${leaveGameRank(leaveGame.score)}`;
+    leaveGameResultEl.textContent = `結果: ${leaveGame.score}点！ ${leaveGameRank(leaveGame.score)}`;
   }
   if (leaveGameActionsEl) leaveGameActionsEl.hidden = false;
 }
 
 function closeLeaveGame() {
   if (leaveGame && leaveGame.interval) window.clearInterval(leaveGame.interval);
+  if (leaveGame && leaveGame.moveTimer) window.clearTimeout(leaveGame.moveTimer);
   leaveGame = null;
   leaveAttempts = 0;
   if (leaveGameEl) leaveGameEl.hidden = true;
@@ -346,6 +410,13 @@ function closeLeaveGame() {
   leaveButton.style.left = "";
   leaveButton.style.top = "";
   leaveButton.textContent = "退室";
+  if (leaveGameTap) {
+    leaveGameTap.disabled = false;
+    leaveGameTap.classList.remove("is-hit", "is-armed");
+    leaveGameTap.style.left = "";
+    leaveGameTap.style.top = "";
+    leaveGameTap.style.removeProperty("--target-rotate");
+  }
   if (leaveMessage) leaveMessage.textContent = "入室してくれますよね？";
 }
 
@@ -1517,7 +1588,7 @@ leaveButton.addEventListener("pointerenter", moveLeaveButton);
 leaveButton.addEventListener("click", moveLeaveButton);
 leaveButton.addEventListener("focus", moveLeaveButton);
 
-if (leaveGameTap) leaveGameTap.addEventListener("click", tapLeaveGame);
+if (leaveGameTap) leaveGameTap.addEventListener("pointerdown", tapLeaveGame);
 document.querySelector("[data-leave-game-retry]")?.addEventListener("click", openLeaveGame);
 document.querySelector("[data-leave-game-quit]")?.addEventListener("click", closeLeaveGame);
 
