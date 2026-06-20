@@ -1,4 +1,5 @@
 const login = document.querySelector("[data-login]");
+const loginCard = document.querySelector(".login-card");
 const desktop = document.querySelector("[data-desktop]");
 const enterButton = document.querySelector("[data-enter]");
 const leaveButton = document.querySelector("[data-leave]");
@@ -275,13 +276,14 @@ const leaveGameSubEl = document.querySelector("[data-leave-game-sub]");
 const leaveGameResultEl = document.querySelector("[data-leave-game-result]");
 const leaveGameActionsEl = document.querySelector("[data-leave-game-actions]");
 
-function leaveGameRank(score) {
-  if (score >= 30) return "神エイム！ほぼ逃げ場なし。";
-  if (score >= 24) return "反応速度かなり鋭い！";
-  if (score >= 18) return "いい追跡。よく当てました。";
-  if (score >= 12) return "十分うまい！";
-  if (score >= 7) return "狙いは合ってきています。";
-  return "退室がまだ逃げ切っています。";
+function leaveGameRank(score, average) {
+  if (average >= 2.2) return { level: "S+", message: "神エイム。退室に逃げ場がありません。" };
+  if (average >= 1.7) return { level: "S", message: "反応速度がかなり鋭いです。" };
+  if (average >= 1.2) return { level: "A", message: "追いかけ方がかなり安定しています。" };
+  if (average >= 0.8) return { level: "B", message: "十分うまい。狙いが合っています。" };
+  if (average >= 0.45) return { level: "C", message: "退室を見失わず追えています。" };
+  if (score > 0) return { level: "D", message: "まずは照準を合わせるところから。" };
+  return { level: "E", message: "退室が完全に逃げ切りました。" };
 }
 
 function updateLeaveGameDisplay() {
@@ -323,12 +325,13 @@ function queueLeaveGameMove() {
 function startLeaveGameTimer() {
   if (!leaveGame || leaveGame.started) return;
   leaveGame.started = true;
+  leaveGame.startedAt = performance.now();
+  leaveGame.endAt = leaveGame.startedAt + leaveGame.durationSeconds * 1000;
   if (leaveGameSubEl) {
-    leaveGameSubEl.textContent = "逃げる退室を狙ってクリック。連打ではなく、追いかけて当てるゲームです。";
+    leaveGameSubEl.textContent = "判定中。逃げる退室を追いかけて、カーソルを合わせてください。";
   }
-  const endAt = performance.now() + 20000;
   leaveGame.interval = window.setInterval(() => {
-    leaveGame.timeLeft = Math.max(0, (endAt - performance.now()) / 1000);
+    leaveGame.timeLeft = Math.max(0, (leaveGame.endAt - performance.now()) / 1000);
     updateLeaveGameDisplay();
     if (leaveGame.timeLeft <= 0) finishLeaveGame();
   }, 80);
@@ -337,19 +340,26 @@ function startLeaveGameTimer() {
 
 function openLeaveGame() {
   if (!leaveGameEl) return;
+  if (leaveGame?.interval) window.clearInterval(leaveGame.interval);
+  if (leaveGame?.moveTimer) window.clearTimeout(leaveGame.moveTimer);
   leaveGame = {
     score: 0,
     timeLeft: 20,
+    durationSeconds: 20,
     started: false,
     ended: false,
     interval: null,
     moveTimer: null,
-    lastHitAt: 0
+    lastHitAt: 0,
+    startedAt: null,
+    endAt: null
   };
+  login.classList.add("is-aim-mode");
+  loginCard?.classList.add("is-aim-mode");
   leaveGameEl.hidden = false;
   if (leaveGameSubEl) {
     leaveGameSubEl.hidden = false;
-    leaveGameSubEl.textContent = "20秒で逃げる「退室」を何回捕まえられる？ボタンを狙ってスタート！";
+    leaveGameSubEl.textContent = "あなたのエイムのレベルは？逃げる「退室」を20秒で捕まえてください。";
   }
   if (leaveGameResultEl) leaveGameResultEl.hidden = true;
   if (leaveGameActionsEl) leaveGameActionsEl.hidden = true;
@@ -359,7 +369,10 @@ function openLeaveGame() {
     leaveGameTap.style.left = "";
     leaveGameTap.style.top = "";
     leaveGameTap.style.removeProperty("--target-rotate");
-    window.requestAnimationFrame(moveLeaveGameTarget);
+    window.requestAnimationFrame(() => {
+      moveLeaveGameTarget();
+      startLeaveGameTimer();
+    });
   }
   updateLeaveGameDisplay();
 }
@@ -389,9 +402,16 @@ function finishLeaveGame() {
   leaveGame.timeLeft = 0;
   updateLeaveGameDisplay();
   if (leaveGameTap) leaveGameTap.disabled = true;
+  const duration = leaveGame.durationSeconds || 20;
+  const average = leaveGame.score / duration;
+  const rank = leaveGameRank(leaveGame.score, average);
+  if (leaveGameSubEl) {
+    leaveGameSubEl.textContent = "エイム判定が完了しました。";
+  }
   if (leaveGameResultEl) {
     leaveGameResultEl.hidden = false;
-    leaveGameResultEl.textContent = `結果: ${leaveGame.score}点！ ${leaveGameRank(leaveGame.score)}`;
+    leaveGameResultEl.textContent =
+      `命中: ${leaveGame.score}回 / ${leaveGame.score}点\n平均速度: ${average.toFixed(1)}クリック/s\nレベル: ${rank.level} - ${rank.message}`;
   }
   if (leaveGameActionsEl) leaveGameActionsEl.hidden = false;
 }
@@ -402,6 +422,8 @@ function closeLeaveGame() {
   leaveGame = null;
   leaveAttempts = 0;
   if (leaveGameEl) leaveGameEl.hidden = true;
+  login.classList.remove("is-aim-mode");
+  loginCard?.classList.remove("is-aim-mode");
   // 通常のログイン画面に戻す（入室ボタンの肥大化・退室ボタンの位置をリセット）
   enterButton.style.removeProperty("--enter-width");
   enterButton.style.removeProperty("--enter-height");
