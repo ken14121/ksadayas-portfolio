@@ -231,6 +231,134 @@ button {
   text-align: center;
 }
 
+.leave-game {
+  position: absolute;
+  inset: -24px -16px;
+  z-index: 30;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 26px 20px;
+  border-radius: 18px;
+  background: rgba(10, 16, 30, 0.82);
+  color: #ffffff;
+  text-align: center;
+}
+
+.leave-game[hidden] {
+  display: none;
+}
+
+.leave-game-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffd36b;
+  letter-spacing: 0.02em;
+}
+
+.leave-game-sub {
+  margin: 0;
+  max-width: 280px;
+  color: #dfe7f2;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.leave-game-meter {
+  display: flex;
+  align-items: baseline;
+  gap: 26px;
+}
+
+.leave-game-timer {
+  font-size: 42px;
+  font-weight: 900;
+  color: #7ee0ff;
+  font-variant-numeric: tabular-nums;
+}
+
+.leave-game-timer::after {
+  content: "s";
+  margin-left: 2px;
+  font-size: 18px;
+  color: #bfe8ff;
+}
+
+.leave-game-score {
+  font-size: 42px;
+  font-weight: 900;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.leave-game-score::after {
+  content: "回";
+  margin-left: 2px;
+  font-size: 16px;
+  color: #cfe9ff;
+}
+
+.leave-game-tap {
+  width: 148px;
+  height: 148px;
+  border: 6px solid #ffffff;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #ff7aa8, #e23b6e 60%, #b91e4e);
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 900;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.45);
+  transition: transform 60ms ease, filter 60ms ease;
+}
+
+.leave-game-tap:hover {
+  filter: brightness(1.05);
+}
+
+.leave-game-tap:active {
+  transform: scale(0.9);
+}
+
+.leave-game-tap:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+
+.leave-game-result {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffd36b;
+}
+
+.leave-game-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.leave-game-btn {
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(#48b552, #2f8f39);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.leave-game-btn:hover {
+  filter: brightness(1.05);
+}
+
+.leave-game-quit {
+  background: linear-gradient(#7a8aa0, #54637a);
+}
+
 .desktop {
   opacity: 1;
   background-image:

@@ -148,6 +148,8 @@ const mailMessages = {
 
 let topZ = 20;
 let leaveAttempts = 0;
+let leaveClicks = 0;
+let leaveGame = null;
 let dragging = null;
 let resizing = null;
 const pinchPointers = new Map();
@@ -236,6 +238,7 @@ function showDesktop() {
 }
 
 function moveLeaveButton() {
+  if (leaveGame) return;
   leaveAttempts += 1;
   const effectiveAttempt = Math.min(leaveAttempts, 4);
   const maxWidth = Math.max(180, Math.min(window.innerWidth - 56, 520));
@@ -256,6 +259,90 @@ function moveLeaveButton() {
   leaveButton.style.top = `${y}px`;
   leaveButton.textContent = leaveAttempts > 3 ? "まだ退室？" : "退室";
   leaveMessage.textContent = leaveMessages[Math.min(leaveAttempts - 1, leaveMessages.length - 1)];
+}
+
+// --- 退室ボタン 連打ゲーム（PC限定の隠し要素）---
+const leaveGameEl = document.querySelector("[data-leave-game]");
+const leaveGameTap = document.querySelector("[data-leave-game-tap]");
+const leaveGameTimerEl = document.querySelector("[data-leave-game-timer]");
+const leaveGameScoreEl = document.querySelector("[data-leave-game-score]");
+const leaveGameSubEl = document.querySelector("[data-leave-game-sub]");
+const leaveGameResultEl = document.querySelector("[data-leave-game-result]");
+const leaveGameActionsEl = document.querySelector("[data-leave-game-actions]");
+
+function leaveGameRank(score) {
+  if (score >= 140) return "化け物連打！ 指、大丈夫？";
+  if (score >= 110) return "達人級！ めちゃ速い！";
+  if (score >= 80) return "かなり速い！";
+  if (score >= 50) return "good！ いい連打";
+  if (score >= 25) return "ウォーミングアップ完了";
+  return "もう少し連打してみよう";
+}
+
+function updateLeaveGameDisplay() {
+  if (!leaveGame) return;
+  if (leaveGameTimerEl) leaveGameTimerEl.textContent = leaveGame.timeLeft.toFixed(1);
+  if (leaveGameScoreEl) leaveGameScoreEl.textContent = String(leaveGame.score);
+}
+
+function openLeaveGame() {
+  if (!leaveGameEl) return;
+  leaveGame = { score: 0, timeLeft: 20, started: false, ended: false, interval: null };
+  leaveGameEl.hidden = false;
+  if (leaveGameSubEl) {
+    leaveGameSubEl.hidden = false;
+    leaveGameSubEl.textContent = "20秒で「退室」を何回押せる？ボタンを押してスタート！";
+  }
+  if (leaveGameResultEl) leaveGameResultEl.hidden = true;
+  if (leaveGameActionsEl) leaveGameActionsEl.hidden = true;
+  if (leaveGameTap) leaveGameTap.disabled = false;
+  updateLeaveGameDisplay();
+}
+
+function tapLeaveGame() {
+  if (!leaveGame || leaveGame.ended) return;
+  if (!leaveGame.started) {
+    leaveGame.started = true;
+    if (leaveGameSubEl) leaveGameSubEl.hidden = true;
+    const endAt = performance.now() + 20000;
+    leaveGame.interval = window.setInterval(() => {
+      leaveGame.timeLeft = Math.max(0, (endAt - performance.now()) / 1000);
+      updateLeaveGameDisplay();
+      if (leaveGame.timeLeft <= 0) finishLeaveGame();
+    }, 80);
+  }
+  leaveGame.score += 1;
+  updateLeaveGameDisplay();
+}
+
+function finishLeaveGame() {
+  if (!leaveGame) return;
+  if (leaveGame.interval) window.clearInterval(leaveGame.interval);
+  leaveGame.ended = true;
+  leaveGame.timeLeft = 0;
+  updateLeaveGameDisplay();
+  if (leaveGameTap) leaveGameTap.disabled = true;
+  if (leaveGameResultEl) {
+    leaveGameResultEl.hidden = false;
+    leaveGameResultEl.textContent = `結果: ${leaveGame.score}回！ ${leaveGameRank(leaveGame.score)}`;
+  }
+  if (leaveGameActionsEl) leaveGameActionsEl.hidden = false;
+}
+
+function closeLeaveGame() {
+  if (leaveGame && leaveGame.interval) window.clearInterval(leaveGame.interval);
+  leaveGame = null;
+  leaveClicks = 0;
+  if (leaveGameEl) leaveGameEl.hidden = true;
+}
+
+function onLeaveButtonClick() {
+  if (leaveGame) return;
+  moveLeaveButton();
+  leaveClicks += 1;
+  if (leaveClicks >= 20 && window.matchMedia("(min-width: 761px)").matches) {
+    openLeaveGame();
+  }
 }
 
 function openPanel(name) {
@@ -1423,8 +1510,12 @@ async function handleBoardSubmit(event) {
 
 enterButton.addEventListener("click", showDesktop);
 leaveButton.addEventListener("pointerenter", moveLeaveButton);
-leaveButton.addEventListener("click", moveLeaveButton);
+leaveButton.addEventListener("click", onLeaveButtonClick);
 leaveButton.addEventListener("focus", moveLeaveButton);
+
+if (leaveGameTap) leaveGameTap.addEventListener("click", tapLeaveGame);
+document.querySelector("[data-leave-game-retry]")?.addEventListener("click", openLeaveGame);
+document.querySelector("[data-leave-game-quit]")?.addEventListener("click", closeLeaveGame);
 
 openers.forEach((button) => {
   button.addEventListener("click", () => openPanel(button.dataset.window));
