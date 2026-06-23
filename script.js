@@ -311,15 +311,51 @@ function moveLeaveGameTarget() {
   leaveGameTap.style.setProperty("--target-rotate", `${rotate}deg`);
 }
 
-function queueLeaveGameMove() {
-  if (!leaveGame || leaveGame.ended || !leaveGame.started) return;
-  if (leaveGame.moveTimer) window.clearTimeout(leaveGame.moveTimer);
-  const delay = Math.max(560, 1220 - leaveGame.score * 24);
-  leaveGame.moveTimer = window.setTimeout(() => {
-    if (!leaveGame || leaveGame.ended) return;
-    moveLeaveGameTarget();
-    queueLeaveGameMove();
-  }, delay);
+function fleeLeaveGameTarget(cursorX, cursorY) {
+  if (!leaveGameStage || !leaveGameTap) return;
+  const stageWidth = leaveGameStage.clientWidth;
+  const stageHeight = leaveGameStage.clientHeight;
+  const targetWidth = leaveGameTap.offsetWidth || 104;
+  const targetHeight = leaveGameTap.offsetHeight || 54;
+  const stageRect = leaveGameStage.getBoundingClientRect();
+  const targetRect = leaveGameTap.getBoundingClientRect();
+  const centerX = targetRect.left - stageRect.left + targetWidth / 2;
+  const centerY = targetRect.top - stageRect.top + targetHeight / 2;
+  // カーソルと反対方向（逃げる向き）
+  let dx = centerX - cursorX;
+  let dy = centerY - cursorY;
+  let length = Math.hypot(dx, dy);
+  if (length < 1) {
+    const angle = Math.random() * Math.PI * 2;
+    dx = Math.cos(angle);
+    dy = Math.sin(angle);
+    length = 1;
+  }
+  const fleeDistance = 150;
+  const padding = 8;
+  const maxX = Math.max(padding, stageWidth - targetWidth - padding);
+  const maxY = Math.max(padding, stageHeight - targetHeight - padding);
+  let x = centerX + (dx / length) * fleeDistance - targetWidth / 2;
+  let y = centerY + (dy / length) * fleeDistance - targetHeight / 2;
+  x = Math.min(Math.max(x, padding), maxX);
+  y = Math.min(Math.max(y, padding), maxY);
+  // 端で詰まったらカーソルから遠い側へ回り込む
+  const moved = Math.hypot(x + targetWidth / 2 - centerX, y + targetHeight / 2 - centerY);
+  if (moved < 26) {
+    x = cursorX < stageWidth / 2
+      ? padding + (maxX - padding) * (0.6 + Math.random() * 0.4)
+      : padding + (maxX - padding) * Math.random() * 0.4;
+    y = cursorY < stageHeight / 2
+      ? padding + (maxY - padding) * (0.55 + Math.random() * 0.45)
+      : padding + (maxY - padding) * Math.random() * 0.45;
+    x = Math.min(Math.max(x, padding), maxX);
+    y = Math.min(Math.max(y, padding), maxY);
+  }
+  const rotate = Math.round(-7 + Math.random() * 14);
+  leaveGameTap.classList.add("is-armed");
+  leaveGameTap.style.left = `${Math.round(x)}px`;
+  leaveGameTap.style.top = `${Math.round(y)}px`;
+  leaveGameTap.style.setProperty("--target-rotate", `${rotate}deg`);
 }
 
 function startLeaveGameTimer() {
@@ -335,7 +371,6 @@ function startLeaveGameTimer() {
     updateLeaveGameDisplay();
     if (leaveGame.timeLeft <= 0) finishLeaveGame();
   }, 80);
-  queueLeaveGameMove();
 }
 
 function openLeaveGame() {
@@ -371,7 +406,6 @@ function openLeaveGame() {
     leaveGameTap.style.removeProperty("--target-rotate");
     window.requestAnimationFrame(() => {
       moveLeaveGameTarget();
-      startLeaveGameTimer();
     });
   }
   updateLeaveGameDisplay();
@@ -389,8 +423,13 @@ function tapLeaveGame(event) {
     leaveGameTap.classList.add("is-hit");
     window.setTimeout(() => leaveGameTap?.classList.remove("is-hit"), 90);
   }
-  moveLeaveGameTarget();
-  queueLeaveGameMove();
+  // 捕まえたらカーソルから逃げる
+  if (event && Number.isFinite(event.clientX) && leaveGameStage) {
+    const stageRect = leaveGameStage.getBoundingClientRect();
+    fleeLeaveGameTarget(event.clientX - stageRect.left, event.clientY - stageRect.top);
+  } else {
+    moveLeaveGameTarget();
+  }
   updateLeaveGameDisplay();
 }
 
@@ -1613,6 +1652,22 @@ leaveButton.addEventListener("focus", moveLeaveButton);
 if (leaveGameTap) leaveGameTap.addEventListener("pointerdown", tapLeaveGame);
 document.querySelector("[data-leave-game-retry]")?.addEventListener("click", openLeaveGame);
 document.querySelector("[data-leave-game-quit]")?.addEventListener("click", closeLeaveGame);
+
+if (leaveGameStage) {
+  leaveGameStage.addEventListener("pointermove", (event) => {
+    if (!leaveGame || leaveGame.ended) return;
+    startLeaveGameTimer();
+    const stageRect = leaveGameStage.getBoundingClientRect();
+    const cursorX = event.clientX - stageRect.left;
+    const cursorY = event.clientY - stageRect.top;
+    const targetRect = leaveGameTap.getBoundingClientRect();
+    const centerX = targetRect.left - stageRect.left + targetRect.width / 2;
+    const centerY = targetRect.top - stageRect.top + targetRect.height / 2;
+    if (Math.hypot(cursorX - centerX, cursorY - centerY) < targetRect.width / 2 + 38) {
+      fleeLeaveGameTarget(cursorX, cursorY);
+    }
+  });
+}
 
 openers.forEach((button) => {
   button.addEventListener("click", () => openPanel(button.dataset.window));
