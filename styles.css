@@ -386,6 +386,21 @@ button {
   cursor: crosshair;
 }
 
+.login-card.is-aim-mode .leave-game.is-finished {
+  grid-template-rows: auto auto auto minmax(170px, 36vh) auto auto;
+  gap: 10px;
+}
+
+.login-card.is-aim-mode .leave-game.is-finished .leave-game-stage {
+  height: clamp(170px, 34vh, 360px);
+}
+
+.login-card.is-aim-mode .leave-game.is-finished .leave-game-actions {
+  align-self: end;
+  justify-content: center;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
 .login-card.is-aim-mode .leave-game-stage::before,
 .login-card.is-aim-mode .leave-game-stage::after {
   display: none;
