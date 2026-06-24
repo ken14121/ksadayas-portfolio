@@ -281,8 +281,13 @@ button {
 
 .login-card.is-aim-mode .leave-game-title,
 .login-card.is-aim-mode .leave-game-sub,
+.login-card.is-aim-mode .leave-game-timer,
+.login-card.is-aim-mode .leave-game-timer::after,
+.login-card.is-aim-mode .leave-game-score,
+.login-card.is-aim-mode .leave-game-score::after,
 .login-card.is-aim-mode .leave-game-meter,
 .login-card.is-aim-mode .leave-game-result {
+  color: #ffffff;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.72);
 }
 
